@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HTCLI GAMES</title>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <style>
         :root {
             --win7-blue: linear-gradient(180deg, #7abcff 0%, #4096ee 50%, #1159ab 100%);
@@ -42,10 +43,7 @@
             -webkit-text-fill-color: transparent;
         }
 
-        .search-container {
-            flex-grow: 1;
-            max-width: 500px;
-        }
+        .search-container { flex-grow: 1; max-width: 500px; }
 
         .search-input {
             width: 100%;
@@ -57,11 +55,7 @@
             outline: none;
         }
 
-        .user-controls {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
+        .user-controls { display: flex; align-items: center; gap: 15px; }
 
         .btn-login-trigger {
             background: rgba(255, 255, 255, 0.2);
@@ -130,6 +124,8 @@
             position: relative;
         }
 
+        .game-card:hover { transform: translateY(-5px); background: rgba(255,255,255,0.2); }
+
         .game-card img {
             width: 100%;
             height: 140px;
@@ -162,31 +158,62 @@
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.9);
+            background: rgba(0,0,0,0.85);
             backdrop-filter: blur(10px);
             z-index: 2000;
             padding: 20px;
+            overflow-y: auto;
         }
 
         .modal-content {
             background: #fff;
-            max-width: 400px;
-            margin: 50px auto;
+            max-width: 420px;
+            margin: 40px auto;
             border-radius: 15px;
             overflow: hidden;
             color: #333;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
         }
 
         .modal-header {
             background: var(--win7-blue);
-            padding: 15px;
+            padding: 15px 20px;
             color: white;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
+        .modal-header button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
         .modal-body { padding: 25px; }
+
+        .auth-tabs {
+            display: flex;
+            border-bottom: 2px solid #eee;
+            margin-bottom: 20px;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: bold;
+            color: #888;
+            transition: 0.3s;
+        }
+
+        .auth-tab.active {
+            color: #007bff;
+            border-bottom: 2px solid #007bff;
+        }
 
         input, textarea {
             width: 100%;
@@ -194,6 +221,8 @@
             padding: 12px;
             border: 1px solid #ccc;
             border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 14px;
         }
 
         .btn-action {
@@ -205,6 +234,16 @@
             border-radius: 8px;
             font-weight: bold;
             cursor: pointer;
+            font-size: 16px;
+            transition: 0.2s;
+        }
+
+        .btn-action:hover { background: #0056b3; }
+
+        .g-recaptcha {
+            margin-bottom: 15px;
+            transform: scale(0.95);
+            transform-origin: 0 0;
         }
 
         iframe {
@@ -220,50 +259,60 @@
     <header>
         <div class="logo">HTCLI GAMES</div>
         <div class="search-container">
-            <input type="text" id="searchInput" class="search-input" placeholder="Pesquisar jogo ou criador...">
+            <input type="text" id="searchInput" class="search-input" placeholder="Pesquisar...">
         </div>
         <div class="user-controls">
             <div id="authStatusContainer"></div>
-            <button id="btnOpenFrame" title="Adicionar">+</button>
+            <button id="btnOpenFrame">+</button>
         </div>
     </header>
 
     <div class="main-container">
         <div class="content-area">
-            <h2 id="counterTitle">A conectar ao Games...</h2>
+            <h2 id="counterTitle">A carregar...</h2>
             <div id="gamesList"></div>
         </div>
     </div>
 
     <div id="authFrame">
         <div class="modal-content">
-            <div class="modal-header"><span>Conta Cloud</span><button onclick="closeModals()">✕</button></div>
+            <div class="modal-header">
+                <span id="authModalTitle">Login</span>
+                <button onclick="closeModals()">✕</button>
+            </div>
             <div class="modal-body">
+                <div class="auth-tabs">
+                    <div id="tabLogin" class="auth-tab active">Entrar</div>
+                    <div id="tabSignup" class="auth-tab">Registar</div>
+                </div>
                 <input type="email" id="authEmail" placeholder="Email">
-                <input type="password" id="authPassword" placeholder="Palavra-passe (mín. 6 caracteres)">
-                <button class="btn-action" id="btnEmailLogin">Entrar</button>
-                <button class="btn-action" style="background:#6c757d; margin-top:10px;" id="btnEmailSignup">Criar Nova Conta</button>
+                <input type="password" id="authPassword" placeholder="Palavra-passe">
+                <div id="signupFields" style="display: none;">
+                    <input type="password" id="authConfirmPassword" placeholder="Confirmar Palavra-passe">
+                    <div class="g-recaptcha" data-sitekey="6LcNkD4sAAAAALtN83s1HHN84qkiZ0TdzUsJ1SpZ"></div>
+                </div>
+                <button class="btn-action" id="btnMainAuth">Entrar</button>
             </div>
         </div>
     </div>
 
     <div id="publishFrame">
         <div class="modal-content">
-            <div class="modal-header"><span>Publicar Jogo</span><button onclick="closeModals()">✕</button></div>
+            <div class="modal-header"><span>Publicar</span><button onclick="closeModals()">✕</button></div>
             <div class="modal-body">
-                <input type="text" id="gameTitle" placeholder="Título do Jogo">
-                <textarea id="gameHtml" rows="4" placeholder="Código HTML / Embed"></textarea>
-                <input type="text" id="gameImageUrl" placeholder="URL da Imagem de Capa">
-                <button class="btn-action" id="btnSave">Publicar Jogo</button>
+                <input type="text" id="gameTitle" placeholder="Título">
+                <textarea id="gameHtml" rows="4" placeholder="Código HTML"></textarea>
+                <input type="text" id="gameImageUrl" placeholder="URL da Imagem">
+                <button class="btn-action" id="btnSave">Publicar</button>
             </div>
         </div>
     </div>
 
     <div id="gamePlayFrame">
         <div style="max-width: 1200px; margin: 0 auto;">
-            <div class="modal-header" style="border-radius: 10px 10px 0 0;">
+            <div class="modal-header">
                 <span id="playingTitle"></span>
-                <button onclick="closeModals()" style="background:#ff4444; border:none; color:white; padding:5px 15px; border-radius:5px; cursor:pointer;">Sair</button>
+                <button onclick="closeModals()">Sair</button>
             </div>
             <iframe id="gameViewport"></iframe>
         </div>
@@ -271,10 +320,9 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, serverTimestamp, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // AS TUAS CREDENCIAIS OFICIAIS
         const firebaseConfig = {
             apiKey: "AIzaSyD8_YbvpWt9bu5CTHnRaUnZlN6TQCWhEqM",
             authDomain: "htcli-games.firebaseapp.com",
@@ -285,63 +333,87 @@
             measurementId: "G-HPJT7672Z2"
         };
 
-        // Inicialização
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const appId = 'htcli-games-v1'; // Identificador único da tua app
+
+        enableIndexedDbPersistence(db).catch(() => {});
 
         let currentUser = null;
         let allGames = [];
         let unsubscribeGames = null;
+        let isLoginMode = true;
 
-        // Proteção contra curiosos (F12)
-        document.addEventListener('contextmenu', e => e.preventDefault());
-        document.onkeydown = e => {
-            if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && e.keyCode == 73)) return false;
+        const tabLogin = document.getElementById('tabLogin');
+        const tabSignup = document.getElementById('tabSignup');
+        const signupFields = document.getElementById('signupFields');
+        const btnMainAuth = document.getElementById('btnMainAuth');
+        const authModalTitle = document.getElementById('authModalTitle');
+
+        tabLogin.onclick = () => {
+            isLoginMode = true;
+            tabLogin.classList.add('active');
+            tabSignup.classList.remove('active');
+            signupFields.style.display = 'none';
+            btnMainAuth.innerText = 'Entrar';
         };
+
+        tabSignup.onclick = () => {
+            isLoginMode = false;
+            tabSignup.classList.add('active');
+            tabLogin.classList.remove('active');
+            signupFields.style.display = 'block';
+            btnMainAuth.innerText = 'Criar Conta';
+        };
+
+        document.addEventListener('contextmenu', e => e.preventDefault());
 
         onAuthStateChanged(auth, (user) => {
             currentUser = user;
             const container = document.getElementById('authStatusContainer');
-            
             if (user && !user.isAnonymous) {
-                const name = user.email ? user.email.split('@')[0] : "Perfil";
-                container.innerHTML = `<div class="user-badge" id="btnLogout">🟢 ${name}</div>`;
-                document.getElementById('btnLogout').onclick = () => confirm("Deseja sair?") && signOut(auth);
+                container.innerHTML = `<div class="user-badge" id="btnLogout">🟢 ${user.email.split('@')[0]}</div>`;
+                document.getElementById('btnLogout').onclick = () => confirm("Sair?") && signOut(auth);
             } else {
-                container.innerHTML = `<button class="btn-login-trigger" id="btnLogin">Entrar / Registar</button>`;
-                const lBtn = document.getElementById('btnLogin');
-                if(lBtn) lBtn.onclick = () => document.getElementById('authFrame').style.display = 'block';
+                container.innerHTML = `<button class="btn-login-trigger" onclick="document.getElementById('authFrame').style.display='block'">Login</button>`;
+                if (!user) signInAnonymously(auth);
             }
-
             if (user) startListening();
         });
 
-        async function startListening() {
-            if (unsubscribeGames) unsubscribeGames();
-            // A coleção agora é fixa no teu projeto
-            const gamesRef = collection(db, 'games_repository');
-            
-            unsubscribeGames = onSnapshot(gamesRef, (snapshot) => {
+        btnMainAuth.onclick = async () => {
+            const email = document.getElementById('authEmail').value;
+            const pass = document.getElementById('authPassword').value;
+            if (!email || !pass) return;
+
+            try {
+                if (isLoginMode) {
+                    await signInWithEmailAndPassword(auth, email, pass);
+                } else {
+                    if (pass !== document.getElementById('authConfirmPassword').value) return alert("Senhas diferentes");
+                    if (!grecaptcha.getResponse()) return alert("Captcha!");
+                    await createUserWithEmailAndPassword(auth, email, pass);
+                }
+                closeModals();
+            } catch(e) { alert(e.message); }
+            finally { if(!isLoginMode) grecaptcha.reset(); }
+        };
+
+        function startListening() {
+            if (unsubscribeGames) return;
+            unsubscribeGames = onSnapshot(collection(db, 'games_repository'), (snap) => {
                 allGames = [];
-                snapshot.forEach(doc => allGames.push({ id: doc.id, ...doc.data() }));
+                snap.forEach(d => allGames.push({ id: d.id, ...d.data() }));
                 renderGames();
-            }, (err) => {
-                console.error("Firestore Error:", err);
-                document.getElementById('counterTitle').innerText = "Erro: Ative o Firestore no modo de teste.";
             });
         }
 
         function renderGames() {
-            const queryVal = document.getElementById('searchInput').value.toLowerCase();
+            const query = document.getElementById('searchInput').value.toLowerCase();
             const list = document.getElementById('gamesList');
-            const filtered = allGames.filter(g => 
-                (g.title && g.title.toLowerCase().includes(queryVal)) || 
-                (g.ownerName && g.ownerName.toLowerCase().includes(queryVal))
-            );
+            const filtered = allGames.filter(g => g.title?.toLowerCase().includes(query));
             
-            document.getElementById('counterTitle').innerText = `Jogos Disponíveis (${filtered.length})`;
+            document.getElementById('counterTitle').innerText = `Jogos (${filtered.length})`;
             list.innerHTML = '';
 
             filtered.forEach(game => {
@@ -350,24 +422,20 @@
                 card.className = 'game-card';
                 card.innerHTML = `
                     ${isOwner ? '<button class="btn-delete">✕</button>' : ''}
-                    <img src="${game.imgSrc || 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=400'}" onerror="this.src='https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=400'">
-                    <div class="game-owner">Por: ${game.ownerName || 'Anónimo'}</div>
-                    <h4 style="margin:0;">${game.title}</h4>
+                    <img src="${game.imgSrc || ''}" loading="lazy">
+                    <div class="game-owner">${game.ownerName || 'Anónimo'}</div>
+                    <h4>${game.title}</h4>
                 `;
-
                 card.onclick = (e) => {
                     if (e.target.className === 'btn-delete') return;
                     document.getElementById('playingTitle').innerText = game.title;
                     document.getElementById('gamePlayFrame').style.display = 'block';
                     document.getElementById('gameViewport').srcdoc = game.html;
                 };
-
                 if(isOwner) {
                     card.querySelector('.btn-delete').onclick = async (e) => {
                         e.stopPropagation();
-                        if(confirm("Eliminar jogo?")) {
-                            await deleteDoc(doc(db, 'games_repository', game.id));
-                        }
+                        if(confirm("Apagar?")) await deleteDoc(doc(db, 'games_repository', game.id));
                     };
                 }
                 list.appendChild(card);
@@ -380,50 +448,24 @@
         };
 
         document.getElementById('btnSave').onclick = async () => {
-            if (!currentUser) return alert("Faz login para publicar!");
+            if (!currentUser || currentUser.isAnonymous) return;
             const title = document.getElementById('gameTitle').value;
             const html = document.getElementById('gameHtml').value;
-            if(!title || !html) return alert("Título e HTML são obrigatórios!");
-
-            try {
-                await addDoc(collection(db, 'games_repository'), {
-                    title, html, imgSrc: document.getElementById('gameImageUrl').value,
-                    owner: currentUser.uid,
-                    ownerName: currentUser.isAnonymous ? "Convidado" : currentUser.email.split('@')[0],
-                    createdAt: serverTimestamp()
-                });
-                closeModals();
-            } catch(e) { alert("Erro ao salvar. Verifique se o Firestore está ativo."); }
+            if(!title || !html) return;
+            await addDoc(collection(db, 'games_repository'), {
+                title, html, imgSrc: document.getElementById('gameImageUrl').value,
+                owner: currentUser.uid, ownerName: currentUser.email.split('@')[0],
+                createdAt: serverTimestamp()
+            });
+            closeModals();
         };
 
-        document.getElementById('btnEmailSignup').onclick = async () => {
-            const email = document.getElementById('authEmail').value;
-            const pass = document.getElementById('authPassword').value;
-            try {
-                await createUserWithEmailAndPassword(auth, email, pass);
-                closeModals();
-            } catch (e) { alert("Erro ao criar conta: " + e.message); }
+        document.getElementById('btnOpenFrame').onclick = () => {
+            if(!currentUser || currentUser.isAnonymous) return alert("Login necessário");
+            document.getElementById('publishFrame').style.display = 'block';
         };
 
-        document.getElementById('btnEmailLogin').onclick = async () => {
-            const email = document.getElementById('authEmail').value;
-            const pass = document.getElementById('authPassword').value;
-            try {
-                await signInWithEmailAndPassword(auth, email, pass);
-                closeModals();
-            } catch(e) { alert("Login falhou."); }
-        };
-
-        document.getElementById('btnOpenFrame').onclick = () => document.getElementById('publishFrame').style.display = 'block';
         document.getElementById('searchInput').oninput = renderGames;
-
-        // Login inicial
-        const init = async () => {
-            try {
-                await signInAnonymously(auth);
-            } catch(e) { console.error("Erro na ligação inicial."); }
-        };
-        init();
     </script>
 </body>
 </html>
