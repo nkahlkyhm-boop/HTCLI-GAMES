@@ -3,13 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HTCLI GAMES</title>
+    <title>HTCLI GAMES </title>
+    
+  
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <style>
         :root {
             --win7-blue: linear-gradient(180deg, #7abcff 0%, #4096ee 50%, #1159ab 100%);
             --glass-border: rgba(255, 255, 255, 0.4);
             --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-            --accent: #007bff;
         }
 
         * { box-sizing: border-box; -webkit-user-select: none; user-select: none; }
@@ -47,6 +50,18 @@
 
         .user-controls { display: flex; align-items: center; gap: 15px; }
 
+        .user-badge {
+            background: rgba(0, 123, 255, 0.4);
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 12px;
+            transition: 0.2s;
+        }
+        .user-badge:hover { background: rgba(0, 123, 255, 0.6); }
+
         .btn-ui {
             background: rgba(255, 255, 255, 0.2);
             border: 1px solid var(--glass-border);
@@ -55,15 +70,6 @@
             border-radius: 8px;
             cursor: pointer;
             font-weight: 600;
-        }
-
-        .user-badge {
-            background: rgba(0, 123, 255, 0.4);
-            padding: 8px 16px;
-            border-radius: 20px;
-            border: 1px solid var(--glass-border);
-            font-weight: bold;
-            cursor: pointer;
         }
 
         #btnOpenFrame {
@@ -78,6 +84,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
 
         .main-container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
@@ -107,7 +114,7 @@
             transition: 0.3s;
         }
         .game-card:hover { transform: translateY(-5px); background: rgba(255,255,255,0.1); }
-        .game-card img { width: 100%; height: 150px; object-fit: cover; border-radius: 12px; margin-bottom: 12px; }
+        .game-card img { width: 100%; height: 150px; object-fit: cover; border-radius: 12px; margin-bottom: 12px; background: #222; }
 
         /* MODAIS */
         .overlay {
@@ -143,14 +150,7 @@
         .modal-body { padding: 20px; }
 
         .auth-tabs { display: flex; border-bottom: 2px solid #eee; margin-bottom: 15px; }
-        .auth-tab { 
-            flex: 1; 
-            padding: 10px; 
-            text-align: center; 
-            cursor: pointer; 
-            font-weight: bold; 
-            color: #888; 
-        }
+        .auth-tab { flex: 1; padding: 10px; text-align: center; cursor: pointer; font-weight: bold; color: #888; }
         .auth-tab.active { color: #007bff; border-bottom: 2px solid #007bff; }
 
         input, textarea {
@@ -162,7 +162,7 @@
             user-select: text;
         }
 
-        /* CAPTCHA ORIGINAL STYLE */
+      
         .captcha-container { background: #fff; border: 1px solid #ccc; margin-bottom: 15px; padding: 2px; }
         .captcha-banner {
             background: #4a90e2;
@@ -212,7 +212,7 @@
     <header>
         <div class="logo">HTCLI GAMES</div>
         <div class="user-controls">
-            <div id="authStatus"></div>
+            <div id="authStatus">A verificar...</div>
             <button id="btnOpenFrame">+</button>
         </div>
     </header>
@@ -220,7 +220,7 @@
     <div class="main-container">
         <div class="content-area">
             <h2 style="margin-top:0">Biblioteca de Jogos</h2>
-            <div id="gamesList"></div>
+            <div id="gamesList">Carregando biblioteca...</div>
         </div>
     </div>
 
@@ -233,15 +233,14 @@
             </div>
             <div class="modal-body">
                 <div class="auth-tabs">
-                    <div id="tabLogin" class="auth-tab active">Entrar</div>
-                    <div id="tabSignup" class="auth-tab">Registar</div>
+                    <div id="tabLogin" class="auth-tab active" onclick="setAuthMode(true)">Entrar</div>
+                    <div id="tabSignup" class="auth-tab" onclick="setAuthMode(false)">Registar</div>
                 </div>
                 
                 <input type="email" id="authEmail" placeholder="Email">
                 <input type="password" id="authPassword" placeholder="Senha">
                 
                 <div id="signupOnly" style="display: none;">
-                    <input type="password" id="authConfirm" placeholder="Confirmar Senha">
                     <div class="captcha-container">
                         <div class="captcha-banner">
                             <div>Selecione todos os<br><b>teclados</b></div>
@@ -260,55 +259,45 @@
         </div>
     </div>
 
-    <!-- Modal de Publicação -->
+
     <div id="publishFrame" class="overlay">
         <div class="modal-content" style="max-width: 500px;">
             <div class="modal-header"><span>Novo Jogo</span><button onclick="closeModals()">✕</button></div>
             <div class="modal-body">
                 <input type="text" id="gTitle" placeholder="Nome do Jogo">
-                <input type="text" id="gImg" placeholder="Link da Imagem">
-                <textarea id="gCode" rows="6" placeholder="Código HTML"></textarea>
-                <button class="btn-action" id="btnPublish">Publicar</button>
+                <input type="text" id="gImg" placeholder="Link da Imagem (Opcional)">
+                <textarea id="gCode" rows="10" placeholder="Insira aqui o código HTML do seu jogo..."></textarea>
+                <button class="btn-action" id="btnPublish">Publicar na Nuven</button>
             </div>
         </div>
     </div>
 
-    <!-- Frame do Jogo -->
+    <!-- Janela Jogo -->
     <div id="gamePlayFrame" class="overlay" style="padding: 0;">
         <div style="width: 100%; height: 100%; display: flex; flex-direction: column;">
             <div class="modal-header">
                 <span id="playTitle"></span>
                 <button onclick="closeModals()">Sair</button>
             </div>
-            <iframe id="gameViewport"></iframe>
+            <iframe id="gameViewport" sandbox="allow-scripts"></iframe>
         </div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    <script>
 
-        const firebaseConfig = {
-          apiKey: "AIzaSyDL-UdJISAT5T9gVqU94VfU1jHg4TcLW3s",
-          authDomain: "htcli-games-4d1e5.firebaseapp.com",
-          projectId: "htcli-games-4d1e5",
-          storageBucket: "htcli-games-4d1e5.firebasestorage.app",
-          messagingSenderId: "260735907238",
-          appId: "1:260735907238:web:e14b266a78269ece364b67"
-        };
+        const SUPABASE_URL = 'https://rwdnqbbbazfdamwtmezu.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ3ZG5xYmJiYXpmZGFtd3RtZXp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc0NDQ1MDcsImV4cCI6MjA4MzAyMDUwN30.vwcCQIvrqCV21nc0QN8iBG_rN0ZurSZttjPUfgVZqIc';
+        
+      
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
-        let user = null;
+        let currentUser = null;
         let isLogin = true;
         let captchaDone = false;
-        let selected = new Set();
-        
+        let selectedTiles = new Set();
         const trafficLightImg = "https://images.unsplash.com/photo-1510674485131-dc88d96369b4?w=400&h=400&fit=crop";
 
+    
         window.closeModals = () => {
             document.querySelectorAll('.overlay').forEach(f => f.style.display='none');
             document.getElementById('gameViewport').srcdoc = "";
@@ -322,87 +311,123 @@
             if(!login) renderCaptcha();
         };
 
-        document.getElementById('tabLogin').onclick = () => setAuthMode(true);
-        document.getElementById('tabSignup').onclick = () => setAuthMode(false);
 
         function renderCaptcha() {
             const grid = document.getElementById('captchaGrid');
             grid.innerHTML = '';
-            selected.clear();
+            selectedTiles.clear();
             captchaDone = false;
             for(let i=0; i<9; i++) {
                 const t = document.createElement('div');
                 t.className = 'captcha-tile';
                 t.style.backgroundImage = `url(${trafficLightImg})`;
-                // Simula um grid onde o semáforo está espalhado
                 t.style.backgroundPosition = `${(i % 3) * 50}% ${Math.floor(i / 3) * 50}%`;
                 t.onclick = () => {
                     t.classList.toggle('selected');
-                    t.classList.contains('selected') ? selected.add(i) : selected.delete(i);
+                    t.classList.contains('selected') ? selectedTiles.add(i) : selectedTiles.delete(i);
                 };
                 grid.appendChild(t);
             }
         }
 
         document.getElementById('btnVerify').onclick = () => {
-            if(selected.size >= 3) { // Regra mais flexível para validação
+            if(selectedTiles.size >= 3) {
                 captchaDone = true;
                 document.getElementById('captchaGrid').style.opacity = "0.5";
                 document.getElementById('captchaGrid').style.pointerEvents = "none";
-                alert("Identidade confirmada!");
+                alert("Captcha verificado com sucesso!");
             } else {
-                alert("Por favor, selecione os semáforos na imagem.");
+                alert("Por favor, selecione os semáforos.");
             }
         };
+
+   
+        async function checkSession() {
+            const { data: { user } } = await _supabase.auth.getUser();
+            currentUser = user;
+            updateAuthUI();
+            loadGames();
+        }
+
+        function updateAuthUI() {
+            const status = document.getElementById('authStatus');
+            if(currentUser) {
+                const name = currentUser.email.split('@')[0];
+                status.innerHTML = `<div class="user-badge" onclick="handleLogout()">👤 ${name}</div>`;
+            } else {
+                status.innerHTML = `<button class="btn-ui" onclick="document.getElementById('authFrame').style.display='block'">Entrar</button>`;
+            }
+        }
+
+        async function handleLogout() {
+            if(confirm('Deseja encerrar a sessão?')) {
+                await _supabase.auth.signOut();
+                location.reload();
+            }
+        }
 
         document.getElementById('btnAuthSubmit').onclick = async () => {
             const email = document.getElementById('authEmail').value;
-            const pass = document.getElementById('authPassword').value;
-            if(!email || !pass) return alert("Preencha os campos.");
-            
+            const password = document.getElementById('authPassword').value;
+
+            if(!email || !password) return alert("Preencha todos os campos.");
+
             try {
-                if(isLogin) {
-                    await signInWithEmailAndPassword(auth, email, pass);
+                if (isLogin) {
+                    const { error } = await _supabase.auth.signInWithPassword({ email, password });
+                    if (error) throw error;
                 } else {
-                    if(!captchaDone) return alert("Complete o Captcha.");
-                    const conf = document.getElementById('authConfirm').value;
-                    if(pass !== conf) return alert("Senhas não coincidem.");
-                    await createUserWithEmailAndPassword(auth, email, pass);
+                    if (!captchaDone) return alert("Complete o captcha primeiro!");
+                    const { error } = await _supabase.auth.signUp({ email, password });
+                    if (error) throw error;
+                    alert("Registo concluído! Se o email estiver ativo, verifique a sua caixa de entrada.");
                 }
                 closeModals();
-            } catch(e) { alert(e.message); }
+                checkSession();
+            } catch (e) {
+                alert("Erro: " + e.message);
+            }
         };
 
-        onAuthStateChanged(auth, (u) => {
-            user = u;
-            const status = document.getElementById('authStatus');
-            if(u && !u.isAnonymous) {
-                status.innerHTML = `<div class="user-badge" onclick="auth.signOut()">👤 ${u.email.split('@')[0]}</div>`;
-            } else {
-                status.innerHTML = `<button class="btn-ui" onclick="document.getElementById('authFrame').style.display='block'">Entrar / Registar</button>`;
-                if(!u) signInAnonymously(auth);
-            }
-        });
-
-        onSnapshot(query(collection(db, 'games_repository'), orderBy('createdAt', 'desc')), (snap) => {
+       
+        async function loadGames() {
             const list = document.getElementById('gamesList');
+            
+            const { data, error } = await _supabase
+                .from('games_repository')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                list.innerHTML = `<p style="color: #ff6b6b">Erro ao carregar jogos: ${error.message}</p>`;
+                return;
+            }
+
+            if (data.length === 0) {
+                list.innerHTML = "<p>Ainda não há jogos publicados. Sê o primeiro!</p>";
+                return;
+            }
+
             list.innerHTML = '';
-            snap.docs.forEach(d => {
-                const g = d.data();
+            data.forEach(g => {
                 const card = document.createElement('div');
                 card.className = 'game-card';
-                card.innerHTML = `<img src="${g.imgSrc || 'https://via.placeholder.com/240x150'}"><strong>${g.title}</strong><br><small>Por ${g.ownerName}</small>`;
+                card.innerHTML = `
+                    <img src="${g.img_src || 'https://via.placeholder.com/240x150/111/fff?text=Sem+Imagem'}" onerror="this.src='https://via.placeholder.com/240x150/111/fff?text=Erro+Imagem'">
+                    <strong>${g.title}</strong><br>
+                    <small style="opacity: 0.7">Por: ${g.owner_name}</small>
+                `;
                 card.onclick = () => {
                     document.getElementById('playTitle').innerText = g.title;
-                    document.getElementById('gameViewport').srcdoc = g.html;
+                    document.getElementById('gameViewport').srcdoc = g.html_content;
                     document.getElementById('gamePlayFrame').style.display = 'block';
                 };
                 list.appendChild(card);
             });
-        });
+        }
 
         document.getElementById('btnOpenFrame').onclick = () => {
-            if(!user || user.isAnonymous) return alert("Faça login para publicar.");
+            if(!currentUser) return alert("Precisas de estar logado para publicar jogos!");
             document.getElementById('publishFrame').style.display = 'block';
         };
 
@@ -410,14 +435,41 @@
             const title = document.getElementById('gTitle').value;
             const html = document.getElementById('gCode').value;
             const img = document.getElementById('gImg').value;
-            if(!title || !html) return alert("Preencha título e código.");
+
+            if(!title || !html) return alert("Título e Código são obrigatórios!");
+
+            const btn = document.getElementById('btnPublish');
+            btn.innerText = "Publicando...";
+            btn.disabled = true;
+
             try {
-                await addDoc(collection(db, 'games_repository'), {
-                    title, html, imgSrc: img, owner: user.uid, ownerName: user.email.split('@')[0], createdAt: serverTimestamp()
-                });
+                const { error } = await _supabase.from('games_repository').insert([
+                    { 
+                        title: title, 
+                        html_content: html, 
+                        img_src: img, 
+                        owner_id: currentUser.id, 
+                        owner_name: currentUser.email.split('@')[0] 
+                    }
+                ]);
+
+                if (error) throw error;
+                
+                alert("Jogo publicado com sucesso!");
+                document.getElementById('gTitle').value = "";
+                document.getElementById('gCode').value = "";
                 closeModals();
-            } catch(e) { alert(e.message); }
+                loadGames();
+            } catch (e) {
+                alert("Erro na publicação: " + e.message);
+            } finally {
+                btn.innerText = "Publicar na Cloud";
+                btn.disabled = false;
+            }
         };
+
+        // Inicialização do APP
+        checkSession();
     </script>
 </body>
 </html>
