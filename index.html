@@ -14,9 +14,7 @@
         * {
             -webkit-user-select: none;
             -moz-user-select: none;
-            -ms-user-select: none;
             user-select: none;
-            -webkit-user-drag: none;
         }
 
         body {
@@ -39,7 +37,6 @@
             position: sticky;
             top: 0;
             z-index: 1000;
-            gap: 20px;
         }
 
         .logo {
@@ -49,20 +46,6 @@
             background: linear-gradient(to bottom, #fff, #a1d9ff);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-        }
-
-        .search-container { flex-grow: 1; max-width: 500px; }
-
-        .search-input {
-            width: 100%;
-            background: rgba(255, 255, 255, 0.2);
-            border: 1px solid var(--glass-border);
-            padding: 10px 15px;
-            border-radius: 25px;
-            color: white;
-            outline: none;
-            -webkit-user-select: text;
-            user-select: text;
         }
 
         .user-controls { display: flex; align-items: center; gap: 15px; }
@@ -78,16 +61,12 @@
         }
 
         .user-badge {
-            font-size: 13px;
             background: rgba(0, 123, 255, 0.6);
             padding: 8px 15px;
             border-radius: 20px;
             border: 1px solid rgba(255,255,255,0.4);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
             font-weight: bold;
+            cursor: pointer;
         }
 
         #btnOpenFrame {
@@ -102,14 +81,9 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
 
-        .main-container {
-            max-width: 1200px;
-            margin: 30px auto;
-            padding: 0 20px;
-        }
+        .main-container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
 
         .content-area {
             background: rgba(0, 50, 100, 0.3);
@@ -117,7 +91,6 @@
             border: 1px solid var(--glass-border);
             border-radius: 20px;
             padding: 25px;
-            box-shadow: var(--shadow);
         }
 
         #gamesList {
@@ -135,7 +108,6 @@
             text-align: center;
             cursor: pointer;
             transition: 0.3s;
-            position: relative;
         }
 
         .game-card img {
@@ -144,7 +116,6 @@
             object-fit: cover;
             border-radius: 10px;
             margin-bottom: 10px;
-            pointer-events: none;
         }
 
         #authFrame, #publishFrame, #gamePlayFrame {
@@ -160,12 +131,11 @@
 
         .modal-content {
             background: #fff;
-            max-width: 400px;
+            max-width: 380px;
             margin: 20px auto;
             border-radius: 12px;
             overflow: hidden;
             color: #333;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
         }
 
         .modal-header {
@@ -174,10 +144,9 @@
             color: white;
             display: flex;
             justify-content: space-between;
-            align-items: center;
         }
 
-        .modal-header button { background: none; border: none; color: white; font-size: 20px; cursor: pointer; }
+        .modal-header button { background: none; border: none; color: white; cursor: pointer; font-size: 18px; }
 
         .modal-body { padding: 20px; }
 
@@ -194,45 +163,42 @@
             border: 1px solid #ccc;
             border-radius: 6px;
             box-sizing: border-box;
-            font-size: 14px;
-            -webkit-user-select: text;
             user-select: text;
         }
 
-        /* --- CAPTCHA --- */
-        .real-captcha-container {
+        /* --- CAPTCHA UNIFICADO --- */
+        .captcha-container {
             background: #fff;
             border: 1px solid #ccc;
             margin-bottom: 15px;
+            padding: 2px;
         }
 
         .captcha-banner {
             background: #4a90e2;
             color: white;
-            padding: 12px;
+            padding: 10px;
             display: flex;
             justify-content: space-between;
+            font-size: 13px;
         }
 
-        .captcha-banner-text b { font-size: 18px; display: block; }
+        .captcha-banner b { font-size: 16px; display: block; }
 
-        .captcha-logo-img { width: 40px; height: 40px; background: white; border-radius: 4px; }
-
-        .captcha-grid-wrapper {
-            width: 100%;
-            aspect-ratio: 1;
-            background-size: cover;
+        .captcha-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            grid-template-rows: repeat(3, 1fr);
             gap: 2px;
-            border: 2px solid #fff;
+            background: #eee;
         }
 
         .captcha-tile {
-            position: relative;
+            aspect-ratio: 1;
+            background-size: cover;
+            background-position: center;
             cursor: pointer;
-            background: rgba(0,0,0,0.05);
+            position: relative;
+            border: 1px solid rgba(0,0,0,0.05);
         }
 
         .captcha-tile.selected::after {
@@ -244,26 +210,28 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: bold;
             border-radius: 50%;
             border: 2px solid #fff;
+            font-weight: bold;
+            font-size: 14px;
         }
 
         .captcha-footer {
             display: flex;
             justify-content: space-between;
             padding: 8px;
+            align-items: center;
             border-top: 1px solid #eee;
         }
 
-        .btn-verify-captcha {
+        .btn-verify {
             background: #4a90e2;
             color: white;
             border: none;
             padding: 8px 15px;
-            border-radius: 2px;
-            cursor: pointer;
             font-weight: bold;
+            cursor: pointer;
+            border-radius: 3px;
         }
 
         .btn-action {
@@ -277,7 +245,7 @@
             cursor: pointer;
         }
 
-        .btn-action:disabled { background: #ccc; cursor: not-allowed; }
+        .btn-action:disabled { background: #ccc; }
 
         iframe { width: 100%; height: 80vh; border: none; background: #fff; }
     </style>
@@ -286,73 +254,65 @@
 
     <header>
         <div class="logo">HTCLI GAMES</div>
-        <div class="search-container">
-            <input type="text" id="searchInput" class="search-input" placeholder="Pesquisar jogos...">
-        </div>
         <div class="user-controls">
-            <div id="authStatusContainer"></div>
+            <div id="authStatus"></div>
             <button id="btnOpenFrame">+</button>
         </div>
     </header>
 
     <div class="main-container">
         <div class="content-area">
-            <h2 id="counterTitle">Biblioteca de Jogos</h2>
+            <h2>Biblioteca de Jogos</h2>
             <div id="gamesList"></div>
         </div>
     </div>
 
-    <!-- Modal Login/Registo -->
     <div id="authFrame">
         <div class="modal-content">
-            <div class="modal-header">
-                <span id="authModalTitle">Cloud Login</span>
-                <button onclick="closeModals()">✕</button>
-            </div>
+            <div class="modal-header"><span id="authTitle">Login</span><button onclick="closeModals()">✕</button></div>
             <div class="modal-body">
                 <div class="auth-tabs">
                     <div id="tabLogin" class="auth-tab active">Entrar</div>
                     <div id="tabSignup" class="auth-tab">Registar</div>
                 </div>
                 <input type="email" id="authEmail" placeholder="Email">
-                <input type="password" id="authPassword" placeholder="Palavra-passe">
+                <input type="password" id="authPassword" placeholder="Senha">
                 
-                <div id="signupFields" style="display: none;">
-                    <input type="password" id="authConfirmPassword" placeholder="Confirmar Palavra-passe">
-                    
-                    <div class="real-captcha-container">
+                <div id="signupOnly" style="display: none;">
+                    <input type="password" id="authConfirm" placeholder="Confirmar Senha">
+                    <div class="captcha-container">
                         <div class="captcha-banner">
-                            <div class="captcha-banner-text">Selecione todas as<br><b>placas de pare</b></div>
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/RecaptchaLogo.svg/250px-RecaptchaLogo.svg.png" class="captcha-logo-img">
+                            <div>Selecione todas as<br><b>placas de pare</b></div>
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/RecaptchaLogo.svg/250px-RecaptchaLogo.svg.png" style="width:30px; height:30px;">
                         </div>
-                        <div id="captchaGrid" class="captcha-grid-wrapper"></div>
+                        <div id="captchaGrid" class="captcha-grid"></div>
                         <div class="captcha-footer">
-                            <div style="font-size: 18px;">🔄 ℹ️ 🎧</div>
-                            <button type="button" class="btn-verify-captcha" id="btnVerifyCaptcha">VERIFICAR</button>
+                            <span style="color:#777; font-size:18px;">🔄 ℹ️</span>
+                            <button type="button" class="btn-verify" id="btnVerify">VERIFICAR</button>
                         </div>
                     </div>
                 </div>
                 
-                <button class="btn-action" id="btnMainAuth">Confirmar</button>
+                <button class="btn-action" id="btnAuthSubmit">Confirmar</button>
             </div>
         </div>
     </div>
 
     <div id="publishFrame">
         <div class="modal-content">
-            <div class="modal-header"><span>Publicar Jogo</span><button onclick="closeModals()">✕</button></div>
+            <div class="modal-header"><span>Novo Jogo</span><button onclick="closeModals()">✕</button></div>
             <div class="modal-body">
-                <input type="text" id="gameTitle" placeholder="Título do Jogo">
-                <textarea id="gameHtml" rows="4" placeholder="Código HTML do Jogo"></textarea>
-                <input type="text" id="gameImageUrl" placeholder="Link da Imagem de Capa">
-                <button class="btn-action" id="btnSave">Publicar Agora</button>
+                <input type="text" id="gTitle" placeholder="Nome do Jogo">
+                <textarea id="gCode" rows="5" placeholder="Código HTML"></textarea>
+                <input type="text" id="gImg" placeholder="Link da Imagem">
+                <button class="btn-action" id="btnPublish">Publicar</button>
             </div>
         </div>
     </div>
 
     <div id="gamePlayFrame">
         <div style="max-width: 1100px; margin: 0 auto;">
-            <div class="modal-header"><span id="playingTitle"></span><button onclick="closeModals()">Sair do Jogo</button></div>
+            <div class="modal-header"><span id="playTitle"></span><button onclick="closeModals()">Sair</button></div>
             <iframe id="gameViewport"></iframe>
         </div>
     </div>
@@ -360,9 +320,9 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        const _config = {
+        const firebaseConfig = {
             apiKey: "AIzaSyD8_YbvpWt9bu5CTHnRaUnZlN6TQCWhEqM",
             authDomain: "htcli-games.firebaseapp.com",
             projectId: "htcli-games",
@@ -371,136 +331,109 @@
             appId: "1:1063076308490:web:12e54028a31f08e3c2e1f3"
         };
 
-        const app = initializeApp(_config);
+        const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        let currentUser = null;
-        let isLoginMode = true;
-        let isCaptchaVerified = false;
-        let selectedTiles = new Set();
-        const correctTiles = [1, 4]; // Placa de Pare na imagem 3x3
+        let user = null;
+        let isLogin = true;
+        let captchaDone = false;
+        let selected = new Set();
+        const singleImageUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTbpOUkf_Wpv0VmNszAGimDWph7FjU7smEKyA&s";
 
-        const captchaImgUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTbpOUkf_Wpv0VmNszAGimDWph7FjU7smEKyA&s";
-
-        function initCaptcha() {
+        function renderCaptcha() {
             const grid = document.getElementById('captchaGrid');
-            grid.style.backgroundImage = `url(${captchaImgUrl})`;
             grid.innerHTML = '';
-            selectedTiles.clear();
-            isCaptchaVerified = false;
-            document.getElementById('captchaGrid').style.opacity = "1";
-            for (let i = 0; i < 9; i++) {
-                const tile = document.createElement('div');
-                tile.className = 'captcha-tile';
-                tile.onclick = () => {
-                    tile.classList.toggle('selected');
-                    tile.classList.contains('selected') ? selectedTiles.add(i) : selectedTiles.delete(i);
+            selected.clear();
+            captchaDone = false;
+            for(let i=0; i<9; i++) {
+                const t = document.createElement('div');
+                t.className = 'captcha-tile';
+                t.style.backgroundImage = `url(${singleImageUrl})`;
+                t.onclick = () => {
+                    t.classList.toggle('selected');
+                    t.classList.contains('selected') ? selected.add(i) : selected.delete(i);
                 };
-                grid.appendChild(tile);
+                grid.appendChild(t);
             }
         }
 
-        document.getElementById('btnVerifyCaptcha').onclick = () => {
-            const ok = correctTiles.every(t => selectedTiles.has(t)) && selectedTiles.size === correctTiles.length;
-            if (ok) {
-                isCaptchaVerified = true;
-                alert("Captcha verificado! Pode confirmar o registo.");
+        document.getElementById('btnVerify').onclick = () => {
+            // Se todas as imagens são placas de pare, o usuário deve selecionar todas as 9
+            if(selected.size === 9) {
+                captchaDone = true;
+                alert("Verificado com sucesso!");
                 document.getElementById('captchaGrid').style.opacity = "0.5";
+                document.getElementById('captchaGrid').style.pointerEvents = "none";
             } else {
-                alert("Erro! Clique apenas nos quadrados que contêm a placa de pare.");
-                initCaptcha();
+                alert("Selecione todos os quadrados para verificar.");
             }
         };
 
         document.getElementById('tabLogin').onclick = () => {
-            isLoginMode = true;
+            isLogin = true;
             document.getElementById('tabLogin').classList.add('active');
             document.getElementById('tabSignup').classList.remove('active');
-            document.getElementById('signupFields').style.display = 'none';
-            document.getElementById('authModalTitle').innerText = 'Cloud Login';
+            document.getElementById('signupOnly').style.display = 'none';
         };
 
         document.getElementById('tabSignup').onclick = () => {
-            isLoginMode = false;
+            isLogin = false;
             document.getElementById('tabSignup').classList.add('active');
             document.getElementById('tabLogin').classList.remove('active');
-            document.getElementById('signupFields').style.display = 'block';
-            document.getElementById('authModalTitle').innerText = 'Criar Nova Conta';
-            initCaptcha();
+            document.getElementById('signupOnly').style.display = 'block';
+            renderCaptcha();
         };
 
-        // Função de Auth melhorada que aguarda a resposta do servidor
-        document.getElementById('btnMainAuth').onclick = async () => {
+        document.getElementById('btnAuthSubmit').onclick = async () => {
             const email = document.getElementById('authEmail').value;
             const pass = document.getElementById('authPassword').value;
+            const btn = document.getElementById('btnAuthSubmit');
+
+            if(!email || !pass) return alert("Preencha os dados.");
+            if(!isLogin && !captchaDone) return alert("Resolva o captcha selecionando todas as imagens.");
             
-            if (!email || !pass) return alert("Por favor, preencha todos os campos.");
-            if (!isLoginMode && !isCaptchaVerified) return alert("Por favor, resolva o Captcha clicando em VERIFICAR.");
-            
-            const btn = document.getElementById('btnMainAuth');
             btn.disabled = true;
-            btn.innerText = "A processar...";
+            btn.innerText = "Processando...";
 
             try {
-                if (isLoginMode) {
+                if(isLogin) {
                     await signInWithEmailAndPassword(auth, email, pass);
                 } else {
-                    const confirmPass = document.getElementById('authConfirmPassword').value;
-                    if (pass !== confirmPass) {
-                        btn.disabled = false;
-                        btn.innerText = "Confirmar";
-                        return alert("As palavras-passe não coincidem.");
-                    }
+                    const conf = document.getElementById('authConfirm').value;
+                    if(pass !== conf) throw new Error("Senhas não conferem.");
                     await createUserWithEmailAndPassword(auth, email, pass);
                 }
-                // Só fechamos se a autenticação tiver sucesso
                 closeModals();
-            } catch(e) { 
-                alert("Erro na Autenticação: " + e.message);
+            } catch(e) {
+                alert("Erro: " + e.message);
                 btn.disabled = false;
                 btn.innerText = "Confirmar";
             }
         };
 
-        // Monitor de Estado - Atualiza a UI sempre que a conta muda
-        onAuthStateChanged(auth, (user) => {
-            currentUser = user;
-            const container = document.getElementById('authStatusContainer');
-            
-            if (user && !user.isAnonymous) {
-                // Utilizador logado
-                const username = user.email.split('@')[0];
-                container.innerHTML = `<div class="user-badge" id="btnLogout">👤 ${username}</div>`;
-                document.getElementById('btnLogout').onclick = () => {
-                    if(confirm("Deseja terminar a sessão?")) signOut(auth);
-                };
+        onAuthStateChanged(auth, (u) => {
+            user = u;
+            const status = document.getElementById('authStatus');
+            if(u && !u.isAnonymous) {
+                status.innerHTML = `<div class="user-badge" onclick="auth.signOut()">👤 ${u.email.split('@')[0]}</div>`;
             } else {
-                // Modo visitante (Anónimo)
-                container.innerHTML = `<button class="btn-login-trigger" id="loginTrigger">Login / Registo</button>`;
-                document.getElementById('loginTrigger').onclick = () => {
-                    document.getElementById('authFrame').style.display = 'block';
-                };
-                if (!user) signInAnonymously(auth);
+                status.innerHTML = `<button class="btn-login-trigger" onclick="document.getElementById('authFrame').style.display='block'">Login</button>`;
+                if(!u) signInAnonymously(auth);
             }
         });
 
-        // Sincronização da lista de jogos
         onSnapshot(collection(db, 'games_repository'), (snap) => {
             const list = document.getElementById('gamesList');
             list.innerHTML = '';
             snap.docs.forEach(d => {
-                const game = d.data();
+                const g = d.data();
                 const card = document.createElement('div');
                 card.className = 'game-card';
-                card.innerHTML = `
-                    <img src="${game.imgSrc || 'https://via.placeholder.com/300x150?text=Jogo+Sem+Capa'}">
-                    <strong>${game.title}</strong>
-                    <div style="font-size: 10px; color: #888; margin-top: 5px;">Por: ${game.ownerName || 'Anónimo'}</div>
-                `;
+                card.innerHTML = `<img src="${g.imgSrc || ''}"><strong>${g.title}</strong><br><small>Por ${g.ownerName}</small>`;
                 card.onclick = () => {
-                    document.getElementById('playingTitle').innerText = game.title;
-                    document.getElementById('gameViewport').srcdoc = game.html;
+                    document.getElementById('playTitle').innerText = g.title;
+                    document.getElementById('gameViewport').srcdoc = g.html;
                     document.getElementById('gamePlayFrame').style.display = 'block';
                 };
                 list.appendChild(card);
@@ -508,45 +441,24 @@
         });
 
         window.closeModals = () => {
-            document.getElementById('authFrame').style.display = 'none';
-            document.getElementById('publishFrame').style.display = 'none';
-            document.getElementById('gamePlayFrame').style.display = 'none';
+            document.querySelectorAll('#authFrame, #publishFrame, #gamePlayFrame').forEach(f => f.style.display='none');
             document.getElementById('gameViewport').srcdoc = "";
-            // Reset do botão
-            const btn = document.getElementById('btnMainAuth');
-            btn.disabled = false;
-            btn.innerText = "Confirmar";
         };
 
         document.getElementById('btnOpenFrame').onclick = () => {
-            if(!currentUser || currentUser.isAnonymous) {
-                alert("Precisa de estar logado para publicar jogos.");
-                document.getElementById('authFrame').style.display = 'block';
-                return;
-            }
+            if(!user || user.isAnonymous) return alert("Faça login para publicar.");
             document.getElementById('publishFrame').style.display = 'block';
         };
 
-        document.getElementById('btnSave').onclick = async () => {
-            const title = document.getElementById('gameTitle').value;
-            const html = document.getElementById('gameHtml').value;
-            const img = document.getElementById('gameImageUrl').value;
-            
-            if(!title || !html) return alert("Título e código HTML são obrigatórios.");
-            
-            try {
-                await addDoc(collection(db, 'games_repository'), {
-                    title, 
-                    html, 
-                    imgSrc: img,
-                    owner: currentUser.uid,
-                    ownerName: currentUser.email.split('@')[0],
-                    createdAt: serverTimestamp()
-                });
-                closeModals();
-            } catch(e) {
-                alert("Erro ao publicar: " + e.message);
-            }
+        document.getElementById('btnPublish').onclick = async () => {
+            const title = document.getElementById('gTitle').value;
+            const html = document.getElementById('gCode').value;
+            const img = document.getElementById('gImg').value;
+            if(!title || !html) return;
+            await addDoc(collection(db, 'games_repository'), {
+                title, html, imgSrc: img, owner: user.uid, ownerName: user.email.split('@')[0], createdAt: serverTimestamp()
+            });
+            closeModals();
         };
     </script>
 </body>
