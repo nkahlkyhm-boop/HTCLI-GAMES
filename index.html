@@ -4,15 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HTCLI GAMES</title>
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <style>
         :root {
             --win7-blue: linear-gradient(180deg, #7abcff 0%, #4096ee 50%, #1159ab 100%);
             --glass-border: rgba(255, 255, 255, 0.5);
+            --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        * {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-user-drag: none;
         }
 
         body {
-            background: url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=2070') no-repeat center center fixed;
+            background: #001220 url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=2070') no-repeat center center fixed;
             background-size: cover;
             font-family: "Segoe UI", Tahoma, sans-serif;
             margin: 0;
@@ -53,6 +61,8 @@
             border-radius: 25px;
             color: white;
             outline: none;
+            -webkit-user-select: text;
+            user-select: text;
         }
 
         .user-controls { display: flex; align-items: center; gap: 15px; }
@@ -64,18 +74,20 @@
             padding: 8px 16px;
             border-radius: 8px;
             cursor: pointer;
+            font-weight: bold;
         }
 
         .user-badge {
-            font-size: 12px;
-            background: rgba(0, 123, 255, 0.5);
-            padding: 6px 12px;
+            font-size: 13px;
+            background: rgba(0, 123, 255, 0.6);
+            padding: 8px 15px;
             border-radius: 20px;
-            border: 1px solid rgba(255,255,255,0.3);
+            border: 1px solid rgba(255,255,255,0.4);
             display: flex;
             align-items: center;
             gap: 8px;
             cursor: pointer;
+            font-weight: bold;
         }
 
         #btnOpenFrame {
@@ -90,6 +102,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
 
         .main-container {
@@ -104,6 +117,7 @@
             border: 1px solid var(--glass-border);
             border-radius: 20px;
             padding: 25px;
+            box-shadow: var(--shadow);
         }
 
         #gamesList {
@@ -124,37 +138,16 @@
             position: relative;
         }
 
-        .game-card:hover { transform: translateY(-5px); background: rgba(255,255,255,0.2); }
-
         .game-card img {
             width: 100%;
             height: 140px;
             object-fit: cover;
             border-radius: 10px;
             margin-bottom: 10px;
+            pointer-events: none;
         }
 
-        .game-owner {
-            font-size: 10px;
-            color: #a1d9ff;
-            text-transform: uppercase;
-            margin-bottom: 5px;
-        }
-
-        .btn-delete {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: rgba(255, 0, 0, 0.9);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 28px;
-            height: 28px;
-            cursor: pointer;
-        }
-
-        #publishFrame, #gamePlayFrame, #authFrame {
+        #authFrame, #publishFrame, #gamePlayFrame {
             display: none;
             position: fixed;
             inset: 0;
@@ -167,62 +160,110 @@
 
         .modal-content {
             background: #fff;
-            max-width: 420px;
-            margin: 40px auto;
-            border-radius: 15px;
+            max-width: 400px;
+            margin: 20px auto;
+            border-radius: 12px;
             overflow: hidden;
             color: #333;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
         }
 
         .modal-header {
             background: var(--win7-blue);
-            padding: 15px 20px;
+            padding: 12px 20px;
             color: white;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .modal-header button {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 20px;
-            cursor: pointer;
-        }
+        .modal-header button { background: none; border: none; color: white; font-size: 20px; cursor: pointer; }
 
-        .modal-body { padding: 25px; }
+        .modal-body { padding: 20px; }
 
-        .auth-tabs {
-            display: flex;
-            border-bottom: 2px solid #eee;
-            margin-bottom: 20px;
-        }
+        .auth-tabs { display: flex; border-bottom: 2px solid #f0f0f0; margin-bottom: 15px; }
 
-        .auth-tab {
-            flex: 1;
-            padding: 10px;
-            text-align: center;
-            cursor: pointer;
-            font-weight: bold;
-            color: #888;
-            transition: 0.3s;
-        }
+        .auth-tab { flex: 1; padding: 10px; text-align: center; cursor: pointer; font-weight: bold; color: #888; }
 
-        .auth-tab.active {
-            color: #007bff;
-            border-bottom: 2px solid #007bff;
-        }
+        .auth-tab.active { color: #007bff; border-bottom: 2px solid #007bff; }
 
         input, textarea {
             width: 100%;
-            margin-bottom: 15px;
-            padding: 12px;
+            margin-bottom: 12px;
+            padding: 10px;
             border: 1px solid #ccc;
-            border-radius: 8px;
+            border-radius: 6px;
             box-sizing: border-box;
             font-size: 14px;
+            -webkit-user-select: text;
+            user-select: text;
+        }
+
+        /* --- CAPTCHA --- */
+        .real-captcha-container {
+            background: #fff;
+            border: 1px solid #ccc;
+            margin-bottom: 15px;
+        }
+
+        .captcha-banner {
+            background: #4a90e2;
+            color: white;
+            padding: 12px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .captcha-banner-text b { font-size: 18px; display: block; }
+
+        .captcha-logo-img { width: 40px; height: 40px; background: white; border-radius: 4px; }
+
+        .captcha-grid-wrapper {
+            width: 100%;
+            aspect-ratio: 1;
+            background-size: cover;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 2px;
+            border: 2px solid #fff;
+        }
+
+        .captcha-tile {
+            position: relative;
+            cursor: pointer;
+            background: rgba(0,0,0,0.05);
+        }
+
+        .captcha-tile.selected::after {
+            content: "✓";
+            position: absolute;
+            inset: 5px;
+            background: #4a90e2;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            border-radius: 50%;
+            border: 2px solid #fff;
+        }
+
+        .captcha-footer {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px;
+            border-top: 1px solid #eee;
+        }
+
+        .btn-verify-captcha {
+            background: #4a90e2;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 2px;
+            cursor: pointer;
+            font-weight: bold;
         }
 
         .btn-action {
@@ -234,24 +275,11 @@
             border-radius: 8px;
             font-weight: bold;
             cursor: pointer;
-            font-size: 16px;
-            transition: 0.2s;
         }
 
-        .btn-action:hover { background: #0056b3; }
+        .btn-action:disabled { background: #ccc; cursor: not-allowed; }
 
-        .g-recaptcha {
-            margin-bottom: 15px;
-            transform: scale(0.95);
-            transform-origin: 0 0;
-        }
-
-        iframe {
-            width: 100%;
-            height: 85vh;
-            border: none;
-            background: #fff;
-        }
+        iframe { width: 100%; height: 80vh; border: none; background: #fff; }
     </style>
 </head>
 <body>
@@ -259,7 +287,7 @@
     <header>
         <div class="logo">HTCLI GAMES</div>
         <div class="search-container">
-            <input type="text" id="searchInput" class="search-input" placeholder="Pesquisar...">
+            <input type="text" id="searchInput" class="search-input" placeholder="Pesquisar jogos...">
         </div>
         <div class="user-controls">
             <div id="authStatusContainer"></div>
@@ -269,15 +297,16 @@
 
     <div class="main-container">
         <div class="content-area">
-            <h2 id="counterTitle">A carregar...</h2>
+            <h2 id="counterTitle">Biblioteca de Jogos</h2>
             <div id="gamesList"></div>
         </div>
     </div>
 
+    <!-- Modal Login/Registo -->
     <div id="authFrame">
         <div class="modal-content">
             <div class="modal-header">
-                <span id="authModalTitle">Login</span>
+                <span id="authModalTitle">Cloud Login</span>
                 <button onclick="closeModals()">✕</button>
             </div>
             <div class="modal-body">
@@ -287,33 +316,43 @@
                 </div>
                 <input type="email" id="authEmail" placeholder="Email">
                 <input type="password" id="authPassword" placeholder="Palavra-passe">
+                
                 <div id="signupFields" style="display: none;">
                     <input type="password" id="authConfirmPassword" placeholder="Confirmar Palavra-passe">
-                    <div class="g-recaptcha" data-sitekey="6LcNkD4sAAAAALtN83s1HHN84qkiZ0TdzUsJ1SpZ"></div>
+                    
+                    <div class="real-captcha-container">
+                        <div class="captcha-banner">
+                            <div class="captcha-banner-text">Selecione todas as<br><b>placas de pare</b></div>
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/RecaptchaLogo.svg/250px-RecaptchaLogo.svg.png" class="captcha-logo-img">
+                        </div>
+                        <div id="captchaGrid" class="captcha-grid-wrapper"></div>
+                        <div class="captcha-footer">
+                            <div style="font-size: 18px;">🔄 ℹ️ 🎧</div>
+                            <button type="button" class="btn-verify-captcha" id="btnVerifyCaptcha">VERIFICAR</button>
+                        </div>
+                    </div>
                 </div>
-                <button class="btn-action" id="btnMainAuth">Entrar</button>
+                
+                <button class="btn-action" id="btnMainAuth">Confirmar</button>
             </div>
         </div>
     </div>
 
     <div id="publishFrame">
         <div class="modal-content">
-            <div class="modal-header"><span>Publicar</span><button onclick="closeModals()">✕</button></div>
+            <div class="modal-header"><span>Publicar Jogo</span><button onclick="closeModals()">✕</button></div>
             <div class="modal-body">
-                <input type="text" id="gameTitle" placeholder="Título">
-                <textarea id="gameHtml" rows="4" placeholder="Código HTML"></textarea>
-                <input type="text" id="gameImageUrl" placeholder="URL da Imagem">
-                <button class="btn-action" id="btnSave">Publicar</button>
+                <input type="text" id="gameTitle" placeholder="Título do Jogo">
+                <textarea id="gameHtml" rows="4" placeholder="Código HTML do Jogo"></textarea>
+                <input type="text" id="gameImageUrl" placeholder="Link da Imagem de Capa">
+                <button class="btn-action" id="btnSave">Publicar Agora</button>
             </div>
         </div>
     </div>
 
     <div id="gamePlayFrame">
-        <div style="max-width: 1200px; margin: 0 auto;">
-            <div class="modal-header">
-                <span id="playingTitle"></span>
-                <button onclick="closeModals()">Sair</button>
-            </div>
+        <div style="max-width: 1100px; margin: 0 auto;">
+            <div class="modal-header"><span id="playingTitle"></span><button onclick="closeModals()">Sair do Jogo</button></div>
             <iframe id="gameViewport"></iframe>
         </div>
     </div>
@@ -321,151 +360,194 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, serverTimestamp, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        const firebaseConfig = {
+        const _config = {
             apiKey: "AIzaSyD8_YbvpWt9bu5CTHnRaUnZlN6TQCWhEqM",
             authDomain: "htcli-games.firebaseapp.com",
             projectId: "htcli-games",
             storageBucket: "htcli-games.firebasestorage.app",
             messagingSenderId: "1063076308490",
-            appId: "1:1063076308490:web:12e54028a31f08e3c2e1f3",
-            measurementId: "G-HPJT7672Z2"
+            appId: "1:1063076308490:web:12e54028a31f08e3c2e1f3"
         };
 
-        const app = initializeApp(firebaseConfig);
+        const app = initializeApp(_config);
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        enableIndexedDbPersistence(db).catch(() => {});
-
         let currentUser = null;
-        let allGames = [];
-        let unsubscribeGames = null;
         let isLoginMode = true;
+        let isCaptchaVerified = false;
+        let selectedTiles = new Set();
+        const correctTiles = [1, 4]; // Placa de Pare na imagem 3x3
 
-        const tabLogin = document.getElementById('tabLogin');
-        const tabSignup = document.getElementById('tabSignup');
-        const signupFields = document.getElementById('signupFields');
-        const btnMainAuth = document.getElementById('btnMainAuth');
-        const authModalTitle = document.getElementById('authModalTitle');
+        const captchaImgUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTbpOUkf_Wpv0VmNszAGimDWph7FjU7smEKyA&s";
 
-        tabLogin.onclick = () => {
-            isLoginMode = true;
-            tabLogin.classList.add('active');
-            tabSignup.classList.remove('active');
-            signupFields.style.display = 'none';
-            btnMainAuth.innerText = 'Entrar';
-        };
-
-        tabSignup.onclick = () => {
-            isLoginMode = false;
-            tabSignup.classList.add('active');
-            tabLogin.classList.remove('active');
-            signupFields.style.display = 'block';
-            btnMainAuth.innerText = 'Criar Conta';
-        };
-
-        document.addEventListener('contextmenu', e => e.preventDefault());
-
-        onAuthStateChanged(auth, (user) => {
-            currentUser = user;
-            const container = document.getElementById('authStatusContainer');
-            if (user && !user.isAnonymous) {
-                container.innerHTML = `<div class="user-badge" id="btnLogout">🟢 ${user.email.split('@')[0]}</div>`;
-                document.getElementById('btnLogout').onclick = () => confirm("Sair?") && signOut(auth);
-            } else {
-                container.innerHTML = `<button class="btn-login-trigger" onclick="document.getElementById('authFrame').style.display='block'">Login</button>`;
-                if (!user) signInAnonymously(auth);
+        function initCaptcha() {
+            const grid = document.getElementById('captchaGrid');
+            grid.style.backgroundImage = `url(${captchaImgUrl})`;
+            grid.innerHTML = '';
+            selectedTiles.clear();
+            isCaptchaVerified = false;
+            document.getElementById('captchaGrid').style.opacity = "1";
+            for (let i = 0; i < 9; i++) {
+                const tile = document.createElement('div');
+                tile.className = 'captcha-tile';
+                tile.onclick = () => {
+                    tile.classList.toggle('selected');
+                    tile.classList.contains('selected') ? selectedTiles.add(i) : selectedTiles.delete(i);
+                };
+                grid.appendChild(tile);
             }
-            if (user) startListening();
-        });
+        }
 
-        btnMainAuth.onclick = async () => {
+        document.getElementById('btnVerifyCaptcha').onclick = () => {
+            const ok = correctTiles.every(t => selectedTiles.has(t)) && selectedTiles.size === correctTiles.length;
+            if (ok) {
+                isCaptchaVerified = true;
+                alert("Captcha verificado! Pode confirmar o registo.");
+                document.getElementById('captchaGrid').style.opacity = "0.5";
+            } else {
+                alert("Erro! Clique apenas nos quadrados que contêm a placa de pare.");
+                initCaptcha();
+            }
+        };
+
+        document.getElementById('tabLogin').onclick = () => {
+            isLoginMode = true;
+            document.getElementById('tabLogin').classList.add('active');
+            document.getElementById('tabSignup').classList.remove('active');
+            document.getElementById('signupFields').style.display = 'none';
+            document.getElementById('authModalTitle').innerText = 'Cloud Login';
+        };
+
+        document.getElementById('tabSignup').onclick = () => {
+            isLoginMode = false;
+            document.getElementById('tabSignup').classList.add('active');
+            document.getElementById('tabLogin').classList.remove('active');
+            document.getElementById('signupFields').style.display = 'block';
+            document.getElementById('authModalTitle').innerText = 'Criar Nova Conta';
+            initCaptcha();
+        };
+
+        // Função de Auth melhorada que aguarda a resposta do servidor
+        document.getElementById('btnMainAuth').onclick = async () => {
             const email = document.getElementById('authEmail').value;
             const pass = document.getElementById('authPassword').value;
-            if (!email || !pass) return;
+            
+            if (!email || !pass) return alert("Por favor, preencha todos os campos.");
+            if (!isLoginMode && !isCaptchaVerified) return alert("Por favor, resolva o Captcha clicando em VERIFICAR.");
+            
+            const btn = document.getElementById('btnMainAuth');
+            btn.disabled = true;
+            btn.innerText = "A processar...";
 
             try {
                 if (isLoginMode) {
                     await signInWithEmailAndPassword(auth, email, pass);
                 } else {
-                    if (pass !== document.getElementById('authConfirmPassword').value) return alert("Senhas diferentes");
-                    if (!grecaptcha.getResponse()) return alert("Captcha!");
+                    const confirmPass = document.getElementById('authConfirmPassword').value;
+                    if (pass !== confirmPass) {
+                        btn.disabled = false;
+                        btn.innerText = "Confirmar";
+                        return alert("As palavras-passe não coincidem.");
+                    }
                     await createUserWithEmailAndPassword(auth, email, pass);
                 }
+                // Só fechamos se a autenticação tiver sucesso
                 closeModals();
-            } catch(e) { alert(e.message); }
-            finally { if(!isLoginMode) grecaptcha.reset(); }
+            } catch(e) { 
+                alert("Erro na Autenticação: " + e.message);
+                btn.disabled = false;
+                btn.innerText = "Confirmar";
+            }
         };
 
-        function startListening() {
-            if (unsubscribeGames) return;
-            unsubscribeGames = onSnapshot(collection(db, 'games_repository'), (snap) => {
-                allGames = [];
-                snap.forEach(d => allGames.push({ id: d.id, ...d.data() }));
-                renderGames();
-            });
-        }
-
-        function renderGames() {
-            const query = document.getElementById('searchInput').value.toLowerCase();
-            const list = document.getElementById('gamesList');
-            const filtered = allGames.filter(g => g.title?.toLowerCase().includes(query));
+        // Monitor de Estado - Atualiza a UI sempre que a conta muda
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+            const container = document.getElementById('authStatusContainer');
             
-            document.getElementById('counterTitle').innerText = `Jogos (${filtered.length})`;
-            list.innerHTML = '';
+            if (user && !user.isAnonymous) {
+                // Utilizador logado
+                const username = user.email.split('@')[0];
+                container.innerHTML = `<div class="user-badge" id="btnLogout">👤 ${username}</div>`;
+                document.getElementById('btnLogout').onclick = () => {
+                    if(confirm("Deseja terminar a sessão?")) signOut(auth);
+                };
+            } else {
+                // Modo visitante (Anónimo)
+                container.innerHTML = `<button class="btn-login-trigger" id="loginTrigger">Login / Registo</button>`;
+                document.getElementById('loginTrigger').onclick = () => {
+                    document.getElementById('authFrame').style.display = 'block';
+                };
+                if (!user) signInAnonymously(auth);
+            }
+        });
 
-            filtered.forEach(game => {
-                const isOwner = currentUser && game.owner === currentUser.uid;
+        // Sincronização da lista de jogos
+        onSnapshot(collection(db, 'games_repository'), (snap) => {
+            const list = document.getElementById('gamesList');
+            list.innerHTML = '';
+            snap.docs.forEach(d => {
+                const game = d.data();
                 const card = document.createElement('div');
                 card.className = 'game-card';
                 card.innerHTML = `
-                    ${isOwner ? '<button class="btn-delete">✕</button>' : ''}
-                    <img src="${game.imgSrc || ''}" loading="lazy">
-                    <div class="game-owner">${game.ownerName || 'Anónimo'}</div>
-                    <h4>${game.title}</h4>
+                    <img src="${game.imgSrc || 'https://via.placeholder.com/300x150?text=Jogo+Sem+Capa'}">
+                    <strong>${game.title}</strong>
+                    <div style="font-size: 10px; color: #888; margin-top: 5px;">Por: ${game.ownerName || 'Anónimo'}</div>
                 `;
-                card.onclick = (e) => {
-                    if (e.target.className === 'btn-delete') return;
+                card.onclick = () => {
                     document.getElementById('playingTitle').innerText = game.title;
-                    document.getElementById('gamePlayFrame').style.display = 'block';
                     document.getElementById('gameViewport').srcdoc = game.html;
+                    document.getElementById('gamePlayFrame').style.display = 'block';
                 };
-                if(isOwner) {
-                    card.querySelector('.btn-delete').onclick = async (e) => {
-                        e.stopPropagation();
-                        if(confirm("Apagar?")) await deleteDoc(doc(db, 'games_repository', game.id));
-                    };
-                }
                 list.appendChild(card);
             });
-        }
+        });
 
         window.closeModals = () => {
-            document.querySelectorAll('#publishFrame,#gamePlayFrame,#authFrame').forEach(m => m.style.display='none');
+            document.getElementById('authFrame').style.display = 'none';
+            document.getElementById('publishFrame').style.display = 'none';
+            document.getElementById('gamePlayFrame').style.display = 'none';
             document.getElementById('gameViewport').srcdoc = "";
-        };
-
-        document.getElementById('btnSave').onclick = async () => {
-            if (!currentUser || currentUser.isAnonymous) return;
-            const title = document.getElementById('gameTitle').value;
-            const html = document.getElementById('gameHtml').value;
-            if(!title || !html) return;
-            await addDoc(collection(db, 'games_repository'), {
-                title, html, imgSrc: document.getElementById('gameImageUrl').value,
-                owner: currentUser.uid, ownerName: currentUser.email.split('@')[0],
-                createdAt: serverTimestamp()
-            });
-            closeModals();
+            // Reset do botão
+            const btn = document.getElementById('btnMainAuth');
+            btn.disabled = false;
+            btn.innerText = "Confirmar";
         };
 
         document.getElementById('btnOpenFrame').onclick = () => {
-            if(!currentUser || currentUser.isAnonymous) return alert("Login necessário");
+            if(!currentUser || currentUser.isAnonymous) {
+                alert("Precisa de estar logado para publicar jogos.");
+                document.getElementById('authFrame').style.display = 'block';
+                return;
+            }
             document.getElementById('publishFrame').style.display = 'block';
         };
 
-        document.getElementById('searchInput').oninput = renderGames;
+        document.getElementById('btnSave').onclick = async () => {
+            const title = document.getElementById('gameTitle').value;
+            const html = document.getElementById('gameHtml').value;
+            const img = document.getElementById('gameImageUrl').value;
+            
+            if(!title || !html) return alert("Título e código HTML são obrigatórios.");
+            
+            try {
+                await addDoc(collection(db, 'games_repository'), {
+                    title, 
+                    html, 
+                    imgSrc: img,
+                    owner: currentUser.uid,
+                    ownerName: currentUser.email.split('@')[0],
+                    createdAt: serverTimestamp()
+                });
+                closeModals();
+            } catch(e) {
+                alert("Erro ao publicar: " + e.message);
+            }
+        };
     </script>
 </body>
 </html>
