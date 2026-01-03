@@ -1,2 +1,2 @@
-# HTCLI-GAMES UPDATE V.2
+# HTCLI-GAMES Beta
 link: https://nkahlkyhm-boop.github.io/HTCLI-GAMES/
