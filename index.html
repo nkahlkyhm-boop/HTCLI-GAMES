@@ -230,7 +230,7 @@
 
     <div class="main-container">
         <div class="content-area">
-            <h2 id="counterTitle">A conectar...</h2>
+            <h2 id="counterTitle">A conectar ao Games...</h2>
             <div id="gamesList"></div>
         </div>
     </div>
@@ -254,7 +254,7 @@
                 <input type="text" id="gameTitle" placeholder="Título do Jogo">
                 <textarea id="gameHtml" rows="4" placeholder="Código HTML / Embed"></textarea>
                 <input type="text" id="gameImageUrl" placeholder="URL da Imagem de Capa">
-                <button class="btn-action" id="btnSave">Publicar na Cloud</button>
+                <button class="btn-action" id="btnSave">Publicar Jogo</button>
             </div>
         </div>
     </div>
@@ -274,18 +274,33 @@
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // CONFIGURAÇÃO OBRIGATÓRIA PARA CANVAS
-        const firebaseConfig = JSON.parse(__firebase_config);
+        // AS TUAS CREDENCIAIS OFICIAIS
+        const firebaseConfig = {
+            apiKey: "AIzaSyD8_YbvpWt9bu5CTHnRaUnZlN6TQCWhEqM",
+            authDomain: "htcli-games.firebaseapp.com",
+            projectId: "htcli-games",
+            storageBucket: "htcli-games.firebasestorage.app",
+            messagingSenderId: "1063076308490",
+            appId: "1:1063076308490:web:12e54028a31f08e3c2e1f3",
+            measurementId: "G-HPJT7672Z2"
+        };
+
+        // Inicialização
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'htcli-v4';
+        const appId = 'htcli-games-v1'; // Identificador único da tua app
 
         let currentUser = null;
         let allGames = [];
         let unsubscribeGames = null;
 
-       
+        // Proteção contra curiosos (F12)
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        document.onkeydown = e => {
+            if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && e.keyCode == 73)) return false;
+        };
+
         onAuthStateChanged(auth, (user) => {
             currentUser = user;
             const container = document.getElementById('authStatusContainer');
@@ -293,37 +308,30 @@
             if (user && !user.isAnonymous) {
                 const name = user.email ? user.email.split('@')[0] : "Perfil";
                 container.innerHTML = `<div class="user-badge" id="btnLogout">🟢 ${name}</div>`;
-                document.getElementById('btnLogout').onclick = () => confirm("Sair?") && signOut(auth);
+                document.getElementById('btnLogout').onclick = () => confirm("Deseja sair?") && signOut(auth);
             } else {
                 container.innerHTML = `<button class="btn-login-trigger" id="btnLogin">Entrar / Registar</button>`;
-                if(document.getElementById('btnLogin')) {
-                    document.getElementById('btnLogin').onclick = () => document.getElementById('authFrame').style.display = 'block';
-                }
+                const lBtn = document.getElementById('btnLogin');
+                if(lBtn) lBtn.onclick = () => document.getElementById('authFrame').style.display = 'block';
             }
 
-    
-            if (user) {
-                startListening();
-            }
+            if (user) startListening();
         });
 
         async function startListening() {
             if (unsubscribeGames) unsubscribeGames();
-            
-            // CAMINHO OBRIGATÓRIO: /artifacts/{appId}/public/data/{collection}
-            const gamesRef = collection(db, 'artifacts', appId, 'public', 'data', 'games');
+            // A coleção agora é fixa no teu projeto
+            const gamesRef = collection(db, 'games_repository');
             
             unsubscribeGames = onSnapshot(gamesRef, (snapshot) => {
                 allGames = [];
                 snapshot.forEach(doc => allGames.push({ id: doc.id, ...doc.data() }));
                 renderGames();
             }, (err) => {
-                console.error("Erro Firestore:", err);
-                document.getElementById('counterTitle').innerText = "Erro de Permissão.";
+                console.error("Firestore Error:", err);
+                document.getElementById('counterTitle').innerText = "Erro: Ative o Firestore no modo de teste.";
             });
         }
-
-        document.getElementById('searchInput').oninput = renderGames;
 
         function renderGames() {
             const queryVal = document.getElementById('searchInput').value.toLowerCase();
@@ -333,7 +341,7 @@
                 (g.ownerName && g.ownerName.toLowerCase().includes(queryVal))
             );
             
-            document.getElementById('counterTitle').innerText = `Jogos (${filtered.length})`;
+            document.getElementById('counterTitle').innerText = `Jogos Disponíveis (${filtered.length})`;
             list.innerHTML = '';
 
             filtered.forEach(game => {
@@ -357,8 +365,8 @@
                 if(isOwner) {
                     card.querySelector('.btn-delete').onclick = async (e) => {
                         e.stopPropagation();
-                        if(confirm("Apagar permanentemente?")) {
-                            await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'games', game.id));
+                        if(confirm("Eliminar jogo?")) {
+                            await deleteDoc(doc(db, 'games_repository', game.id));
                         }
                     };
                 }
@@ -372,20 +380,20 @@
         };
 
         document.getElementById('btnSave').onclick = async () => {
-            if (!currentUser) return alert("Erro: Não autenticado.");
+            if (!currentUser) return alert("Faz login para publicar!");
             const title = document.getElementById('gameTitle').value;
             const html = document.getElementById('gameHtml').value;
-            if(!title || !html) return alert("Preencha título e código.");
+            if(!title || !html) return alert("Título e HTML são obrigatórios!");
 
             try {
-                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'games'), {
+                await addDoc(collection(db, 'games_repository'), {
                     title, html, imgSrc: document.getElementById('gameImageUrl').value,
                     owner: currentUser.uid,
                     ownerName: currentUser.isAnonymous ? "Convidado" : currentUser.email.split('@')[0],
                     createdAt: serverTimestamp()
                 });
                 closeModals();
-            } catch(e) { alert("Erro ao salvar."); }
+            } catch(e) { alert("Erro ao salvar. Verifique se o Firestore está ativo."); }
         };
 
         document.getElementById('btnEmailSignup').onclick = async () => {
@@ -394,7 +402,7 @@
             try {
                 await createUserWithEmailAndPassword(auth, email, pass);
                 closeModals();
-            } catch (e) { alert("Erro: " + e.message); }
+            } catch (e) { alert("Erro ao criar conta: " + e.message); }
         };
 
         document.getElementById('btnEmailLogin').onclick = async () => {
@@ -403,26 +411,19 @@
             try {
                 await signInWithEmailAndPassword(auth, email, pass);
                 closeModals();
-            } catch(e) { alert("Erro no login."); }
+            } catch(e) { alert("Login falhou."); }
         };
 
-        document.getElementById('btnOpenFrame').onclick = () => {
-            document.getElementById('publishFrame').style.display = 'block';
-        };
+        document.getElementById('btnOpenFrame').onclick = () => document.getElementById('publishFrame').style.display = 'block';
+        document.getElementById('searchInput').oninput = renderGames;
 
-        const initAuth = async () => {
+        // Login inicial
+        const init = async () => {
             try {
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
-            } catch (e) {
-                console.error("Erro Auth Inicial:", e);
-            }
+                await signInAnonymously(auth);
+            } catch(e) { console.error("Erro na ligação inicial."); }
         };
-
-        initAuth();
+        init();
     </script>
 </body>
 </html>
