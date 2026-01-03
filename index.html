@@ -6,57 +6,82 @@
     <title>HTCLI GAMES</title>
     <style>
         :root {
-            --aero-blue: #a1d9ff;
-            --aero-green: #9dd53a;
-            --glass-bg: rgba(255, 255, 255, 0.25);
-            --glass-border: rgba(255, 255, 255, 0.5);
             --win7-blue: linear-gradient(180deg, #7abcff 0%, #4096ee 50%, #1159ab 100%);
+            --glass-border: rgba(255, 255, 255, 0.5);
         }
 
         body {
             background: url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=2070') no-repeat center center fixed;
             background-size: cover;
-            font-family: "Segoe UI", "Tahoma", sans-serif;
+            font-family: "Segoe UI", Tahoma, sans-serif;
             margin: 0;
-            color: #ffffff;
+            color: white;
             min-height: 100vh;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
-            overflow-x: hidden;
-        }
-
-        body::before {
-            content: "";
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.4) 0%, transparent 70%);
-            pointer-events: none;
-            z-index: -1;
         }
 
         header {
-            background: linear-gradient(180deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.1) 100%);
-            backdrop-filter: blur(20px) saturate(180%);
-            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--glass-border);
-            padding: 15px 30px;
+            padding: 12px 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
             position: sticky;
             top: 0;
             z-index: 1000;
+            gap: 20px;
         }
 
         .logo {
-            font-size: 28px;
+            font-size: 24px;
             font-weight: 800;
             font-style: italic;
-            background: linear-gradient(to bottom, #fff 0%, #a1d9ff 100%);
+            background: linear-gradient(to bottom, #fff, #a1d9ff);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 0 5px rgba(0,114,255,0.8));
-            letter-spacing: -1px;
+        }
+
+        .search-container {
+            flex-grow: 1;
+            max-width: 500px;
+        }
+
+        .search-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid var(--glass-border);
+            padding: 10px 15px;
+            border-radius: 25px;
+            color: white;
+            outline: none;
+        }
+
+        .user-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .btn-login-trigger {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid var(--glass-border);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .user-badge {
+            font-size: 12px;
+            background: rgba(0, 123, 255, 0.5);
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.3);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
         }
 
         #btnOpenFrame {
@@ -64,173 +89,129 @@
             border: 2px solid #fff;
             color: #fff;
             font-size: 28px;
-            width: 50px;
-            height: 50px;
+            width: 42px;
+            height: 42px;
             border-radius: 50%;
             cursor: pointer;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3), inset 0 2px 5px rgba(255,255,255,0.8);
-            transition: 0.2s;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
-        #btnOpenFrame:hover {
-            transform: scale(1.1) brightness(1.1);
-            box-shadow: 0 0 20px #9dd53a;
-        }
-
         .main-container {
-            max-width: 1100px;
+            max-width: 1200px;
             margin: 30px auto;
             padding: 0 20px;
         }
 
         .content-area {
-            background: rgba(0, 50, 100, 0.2);
+            background: rgba(0, 50, 100, 0.3);
             backdrop-filter: blur(15px);
             border: 1px solid var(--glass-border);
-            border-radius: 30px;
-            padding: 30px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4), inset 0 0 20px rgba(255,255,255,0.1);
-        }
-
-        #counterTitle {
-            font-size: 22px;
-            margin-top: 0;
-            border-bottom: 2px solid rgba(255,255,255,0.2);
-            padding-bottom: 10px;
+            border-radius: 20px;
+            padding: 25px;
         }
 
         #gamesList {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
             gap: 25px;
             margin-top: 20px;
         }
 
         .game-card {
-            background: linear-gradient(135deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.05) 100%);
+            background: rgba(255,255,255,0.1);
             border: 1px solid var(--glass-border);
             padding: 12px;
-            border-radius: 20px;
+            border-radius: 15px;
             text-align: center;
             cursor: pointer;
-            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: 0.3s;
             position: relative;
-            overflow: hidden;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-        }
-
-        .game-card::before {
-            content: "";
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 50%;
-            background: linear-gradient(to bottom, rgba(255,255,255,0.4) 0%, transparent 100%);
-            pointer-events: none;
-        }
-
-        .game-card:hover {
-            transform: scale(1.08);
-            background: rgba(255, 255, 255, 0.4);
-            box-shadow: 0 0 30px rgba(161, 217, 255, 0.6);
         }
 
         .game-card img {
             width: 100%;
             height: 140px;
             object-fit: cover;
-            border-radius: 12px;
-            border: 2px solid rgba(255,255,255,0.5);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            border-radius: 10px;
+            margin-bottom: 10px;
         }
 
-        .game-card h4 {
-            margin: 15px 0 5px;
-            font-size: 18px;
-            font-weight: 600;
+        .game-owner {
+            font-size: 10px;
+            color: #a1d9ff;
+            text-transform: uppercase;
+            margin-bottom: 5px;
         }
 
         .btn-delete {
             position: absolute;
-            top: 8px;
-            right: 8px;
-            background: linear-gradient(180deg, #ff5f5f 0%, #cc0000 100%);
-            border: 1px solid #fff;
-            border-radius: 50%;
-            width: 26px; height: 26px;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 0, 0, 0.9);
             color: white;
+            border: none;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
             cursor: pointer;
-            display: none;
-            z-index: 10;
         }
 
-        .game-card:hover .btn-delete { display: block; }
-
-        #publishFrame, #gamePlayFrame {
+        #publishFrame, #gamePlayFrame, #authFrame {
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(0, 20, 40, 0.7);
+            background: rgba(0,0,0,0.9);
             backdrop-filter: blur(10px);
             z-index: 2000;
             padding: 20px;
         }
 
         .modal-content {
-            background: linear-gradient(180deg, #f0f0f0 0%, #e0e0e0 100%);
-            max-width: 600px;
-            margin: 40px auto;
-            padding: 0;
-            border-radius: 12px;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.8);
-            border: 1px solid #555;
-            color: #333;
+            background: #fff;
+            max-width: 400px;
+            margin: 50px auto;
+            border-radius: 15px;
             overflow: hidden;
-            text-shadow: none;
+            color: #333;
         }
 
         .modal-header {
             background: var(--win7-blue);
-            padding: 10px 20px;
+            padding: 15px;
             color: white;
-            font-weight: bold;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid #000;
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.4);
         }
 
-        .modal-body { padding: 30px; }
+        .modal-body { padding: 25px; }
 
         input, textarea {
             width: 100%;
+            margin-bottom: 15px;
             padding: 12px;
-            margin: 10px 0 20px;
-            border: 1px solid #999;
-            border-radius: 5px;
-            box-sizing: border-box;
-            background: white;
+            border: 1px solid #ccc;
+            border-radius: 8px;
         }
 
-        .btn-post {
-            background: linear-gradient(180deg, #4faeff 0%, #0072ff 100%);
+        .btn-action {
+            background: #007bff;
             color: white;
-            border: 1px solid #0056b3;
-            padding: 15px;
+            border: none;
+            padding: 12px;
             width: 100%;
             border-radius: 8px;
             font-weight: bold;
-            font-size: 16px;
             cursor: pointer;
         }
 
-        #gameViewport {
+        iframe {
             width: 100%;
-            height: 75vh;
-            background: black;
-            border: 1px solid #555;
+            height: 85vh;
+            border: none;
+            background: #fff;
         }
     </style>
 </head>
@@ -238,464 +219,210 @@
 
     <header>
         <div class="logo">HTCLI GAMES</div>
-        <button id="btnOpenFrame">+</button>
+        <div class="search-container">
+            <input type="text" id="searchInput" class="search-input" placeholder="Pesquisar jogo ou criador...">
+        </div>
+        <div class="user-controls">
+            <div id="authStatusContainer"></div>
+            <button id="btnOpenFrame" title="Adicionar">+</button>
+        </div>
     </header>
 
     <div class="main-container">
         <div class="content-area">
-            <h2 id="counterTitle">Biblioteca</h2>
+            <h2 id="counterTitle">A conectar...</h2>
             <div id="gamesList"></div>
+        </div>
+    </div>
+
+    <div id="authFrame">
+        <div class="modal-content">
+            <div class="modal-header"><span>Conta Cloud</span><button onclick="closeModals()">✕</button></div>
+            <div class="modal-body">
+                <input type="email" id="authEmail" placeholder="Email">
+                <input type="password" id="authPassword" placeholder="Palavra-passe (mín. 6 caracteres)">
+                <button class="btn-action" id="btnEmailLogin">Entrar</button>
+                <button class="btn-action" style="background:#6c757d; margin-top:10px;" id="btnEmailSignup">Criar Nova Conta</button>
+            </div>
         </div>
     </div>
 
     <div id="publishFrame">
         <div class="modal-content">
-            <div class="modal-header">
-                <span>Adicionar Novo Item</span>
-                <button onclick="closeAll()" style="background:red; color:white; border:none; padding:2px 8px; border-radius:3px; cursor:pointer;">X</button>
-            </div>
+            <div class="modal-header"><span>Publicar Jogo</span><button onclick="closeModals()">✕</button></div>
             <div class="modal-body">
-                <input type="text" id="gameTitle" placeholder="Nome do Jogo">
-                <textarea id="gameHtml" rows="5" placeholder="Código de Incorporação (Embed)"></textarea>
-                <input type="file" id="gameImage" accept="image/*">
-                <button class="btn-post" id="btnPublish">Instalar</button>
+                <input type="text" id="gameTitle" placeholder="Título do Jogo">
+                <textarea id="gameHtml" rows="4" placeholder="Código HTML / Embed"></textarea>
+                <input type="text" id="gameImageUrl" placeholder="URL da Imagem de Capa">
+                <button class="btn-action" id="btnSave">Publicar na Cloud</button>
             </div>
         </div>
     </div>
 
     <div id="gamePlayFrame">
-        <div style="max-width: 1000px; margin: 0 auto; background:#333; border: 2px solid #555; border-radius:10px; overflow:hidden;">
-            <div class="modal-header">
+        <div style="max-width: 1200px; margin: 0 auto;">
+            <div class="modal-header" style="border-radius: 10px 10px 0 0;">
                 <span id="playingTitle"></span>
-                <button onclick="closeAll()" style="background:red; color:white; border:none; padding:2px 8px; border-radius:3px; cursor:pointer;">X</button>
+                <button onclick="closeModals()" style="background:#ff4444; border:none; color:white; padding:5px 15px; border-radius:5px; cursor:pointer;">Sair</button>
             </div>
             <iframe id="gameViewport"></iframe>
         </div>
     </div>
 
-    <script>
-        const gamesList = document.getElementById('gamesList');
-        const counterTitle = document.getElementById('counterTitle');
-        let gamesArray = JSON.parse(localStorage.getItem('htcli_db_v2')) || [];
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // CONFIGURAÇÃO OBRIGATÓRIA PARA CANVAS
+        const firebaseConfig = JSON.parse(__firebase_config);
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'htcli-v4';
+
+        let currentUser = null;
+        let allGames = [];
+        let unsubscribeGames = null;
+
+       
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+            const container = document.getElementById('authStatusContainer');
+            
+            if (user && !user.isAnonymous) {
+                const name = user.email ? user.email.split('@')[0] : "Perfil";
+                container.innerHTML = `<div class="user-badge" id="btnLogout">🟢 ${name}</div>`;
+                document.getElementById('btnLogout').onclick = () => confirm("Sair?") && signOut(auth);
+            } else {
+                container.innerHTML = `<button class="btn-login-trigger" id="btnLogin">Entrar / Registar</button>`;
+                if(document.getElementById('btnLogin')) {
+                    document.getElementById('btnLogin').onclick = () => document.getElementById('authFrame').style.display = 'block';
+                }
+            }
+
+    
+            if (user) {
+                startListening();
+            }
+        });
+
+        async function startListening() {
+            if (unsubscribeGames) unsubscribeGames();
+            
+            // CAMINHO OBRIGATÓRIO: /artifacts/{appId}/public/data/{collection}
+            const gamesRef = collection(db, 'artifacts', appId, 'public', 'data', 'games');
+            
+            unsubscribeGames = onSnapshot(gamesRef, (snapshot) => {
+                allGames = [];
+                snapshot.forEach(doc => allGames.push({ id: doc.id, ...doc.data() }));
+                renderGames();
+            }, (err) => {
+                console.error("Erro Firestore:", err);
+                document.getElementById('counterTitle').innerText = "Erro de Permissão.";
+            });
+        }
+
+        document.getElementById('searchInput').oninput = renderGames;
+
+        function renderGames() {
+            const queryVal = document.getElementById('searchInput').value.toLowerCase();
+            const list = document.getElementById('gamesList');
+            const filtered = allGames.filter(g => 
+                (g.title && g.title.toLowerCase().includes(queryVal)) || 
+                (g.ownerName && g.ownerName.toLowerCase().includes(queryVal))
+            );
+            
+            document.getElementById('counterTitle').innerText = `Jogos (${filtered.length})`;
+            list.innerHTML = '';
+
+            filtered.forEach(game => {
+                const isOwner = currentUser && game.owner === currentUser.uid;
+                const card = document.createElement('div');
+                card.className = 'game-card';
+                card.innerHTML = `
+                    ${isOwner ? '<button class="btn-delete">✕</button>' : ''}
+                    <img src="${game.imgSrc || 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=400'}" onerror="this.src='https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=400'">
+                    <div class="game-owner">Por: ${game.ownerName || 'Anónimo'}</div>
+                    <h4 style="margin:0;">${game.title}</h4>
+                `;
+
+                card.onclick = (e) => {
+                    if (e.target.className === 'btn-delete') return;
+                    document.getElementById('playingTitle').innerText = game.title;
+                    document.getElementById('gamePlayFrame').style.display = 'block';
+                    document.getElementById('gameViewport').srcdoc = game.html;
+                };
+
+                if(isOwner) {
+                    card.querySelector('.btn-delete').onclick = async (e) => {
+                        e.stopPropagation();
+                        if(confirm("Apagar permanentemente?")) {
+                            await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'games', game.id));
+                        }
+                    };
+                }
+                list.appendChild(card);
+            });
+        }
+
+        window.closeModals = () => {
+            document.querySelectorAll('#publishFrame,#gamePlayFrame,#authFrame').forEach(m => m.style.display='none');
+            document.getElementById('gameViewport').srcdoc = "";
+        };
+
+        document.getElementById('btnSave').onclick = async () => {
+            if (!currentUser) return alert("Erro: Não autenticado.");
+            const title = document.getElementById('gameTitle').value;
+            const html = document.getElementById('gameHtml').value;
+            if(!title || !html) return alert("Preencha título e código.");
+
+            try {
+                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'games'), {
+                    title, html, imgSrc: document.getElementById('gameImageUrl').value,
+                    owner: currentUser.uid,
+                    ownerName: currentUser.isAnonymous ? "Convidado" : currentUser.email.split('@')[0],
+                    createdAt: serverTimestamp()
+                });
+                closeModals();
+            } catch(e) { alert("Erro ao salvar."); }
+        };
+
+        document.getElementById('btnEmailSignup').onclick = async () => {
+            const email = document.getElementById('authEmail').value;
+            const pass = document.getElementById('authPassword').value;
+            try {
+                await createUserWithEmailAndPassword(auth, email, pass);
+                closeModals();
+            } catch (e) { alert("Erro: " + e.message); }
+        };
+
+        document.getElementById('btnEmailLogin').onclick = async () => {
+            const email = document.getElementById('authEmail').value;
+            const pass = document.getElementById('authPassword').value;
+            try {
+                await signInWithEmailAndPassword(auth, email, pass);
+                closeModals();
+            } catch(e) { alert("Erro no login."); }
+        };
 
         document.getElementById('btnOpenFrame').onclick = () => {
             document.getElementById('publishFrame').style.display = 'block';
         };
 
-        function closeAll() {
-            document.getElementById('publishFrame').style.display = 'none';
-            document.getElementById('gamePlayFrame').style.display = 'none';
-            document.getElementById('gameViewport').srcdoc = "";
-        }
-
-        document.getElementById('btnPublish').onclick = () => {
-            const title = document.getElementById('gameTitle').value;
-            const code = document.getElementById('gameHtml').value;
-            const file = document.getElementById('gameImage').files[0];
-
-            if (!title || !code) return;
-
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (e) => save(title, code, e.target.result);
-                reader.readAsDataURL(file);
-            } else {
-                save(title, code, "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=400");
+        const initAuth = async () => {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (e) {
+                console.error("Erro Auth Inicial:", e);
             }
         };
 
-        function save(title, html, imgSrc) {
-            gamesArray.push({ title, html, imgSrc });
-            localStorage.setItem('htcli_db_v2', JSON.stringify(gamesArray));
-            render();
-            closeAll();
-            document.getElementById('gameTitle').value = "";
-            document.getElementById('gameHtml').value = "";
-            document.getElementById('gameImage').value = "";
-        }
-
-        function deleteGame(idx, e) {
-            e.stopPropagation();
-            if(confirm("Remover da biblioteca?")) {
-                gamesArray.splice(idx, 1);
-                localStorage.setItem('htcli_db_v2', JSON.stringify(gamesArray));
-                render();
-            }
-        }
-
-        function render() {
-            gamesList.innerHTML = '';
-            counterTitle.innerText = `Biblioteca (${gamesArray.length})`;
-
-            gamesArray.forEach((g, i) => {
-                const card = document.createElement('div');
-                card.className = 'game-card';
-                card.innerHTML = `
-                    <button class="btn-delete" onclick="deleteGame(${i}, event)">✕</button>
-                    <img src="${g.imgSrc}">
-                    <h4>${g.title}</h4>
-                `;
-                card.onclick = () => {
-                    document.getElementById('playingTitle').innerText = g.title;
-                    document.getElementById('gamePlayFrame').style.display = 'block';
-                    document.getElementById('gameViewport').srcdoc = g.html.includes('<html') ? g.html : 
-                        `<!DOCTYPE html><html><body style="margin:0; background:#000; color:white;">${g.html}</body></html>`;
-                };
-                gamesList.appendChild(card);
-            });
-        }
-
-        render();
-    </script>
-</body>
-</html><!DOCTYPE html>
-<html lang="pt-pt">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HTCLI GAMES</title>
-    <style>
-        :root {
-            --aero-blue: #a1d9ff;
-            --aero-green: #9dd53a;
-            --glass-bg: rgba(255, 255, 255, 0.25);
-            --glass-border: rgba(255, 255, 255, 0.5);
-            --win7-blue: linear-gradient(180deg, #7abcff 0%, #4096ee 50%, #1159ab 100%);
-        }
-
-        body {
-            background: url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=2070') no-repeat center center fixed;
-            background-size: cover;
-            font-family: "Segoe UI", "Tahoma", sans-serif;
-            margin: 0;
-            color: #ffffff;
-            min-height: 100vh;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
-            overflow-x: hidden;
-        }
-
-        body::before {
-            content: "";
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.4) 0%, transparent 70%);
-            pointer-events: none;
-            z-index: -1;
-        }
-
-        header {
-            background: linear-gradient(180deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.1) 100%);
-            backdrop-filter: blur(20px) saturate(180%);
-            -webkit-backdrop-filter: blur(20px) saturate(180%);
-            border-bottom: 1px solid var(--glass-border);
-            padding: 15px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        .logo {
-            font-size: 28px;
-            font-weight: 800;
-            font-style: italic;
-            background: linear-gradient(to bottom, #fff 0%, #a1d9ff 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 0 5px rgba(0,114,255,0.8));
-            letter-spacing: -1px;
-        }
-
-        #btnOpenFrame {
-            background: linear-gradient(180deg, #9dd53a 0%, #7cbc0a 45%, #67a602 100%);
-            border: 2px solid #fff;
-            color: #fff;
-            font-size: 28px;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            cursor: pointer;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3), inset 0 2px 5px rgba(255,255,255,0.8);
-            transition: 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        #btnOpenFrame:hover {
-            transform: scale(1.1) brightness(1.1);
-            box-shadow: 0 0 20px #9dd53a;
-        }
-
-        .main-container {
-            max-width: 1100px;
-            margin: 30px auto;
-            padding: 0 20px;
-        }
-
-        .content-area {
-            background: rgba(0, 50, 100, 0.2);
-            backdrop-filter: blur(15px);
-            border: 1px solid var(--glass-border);
-            border-radius: 30px;
-            padding: 30px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4), inset 0 0 20px rgba(255,255,255,0.1);
-        }
-
-        #counterTitle {
-            font-size: 22px;
-            margin-top: 0;
-            border-bottom: 2px solid rgba(255,255,255,0.2);
-            padding-bottom: 10px;
-        }
-
-        #gamesList {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 25px;
-            margin-top: 20px;
-        }
-
-        .game-card {
-            background: linear-gradient(135deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.05) 100%);
-            border: 1px solid var(--glass-border);
-            padding: 12px;
-            border-radius: 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-        }
-
-        .game-card::before {
-            content: "";
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 50%;
-            background: linear-gradient(to bottom, rgba(255,255,255,0.4) 0%, transparent 100%);
-            pointer-events: none;
-        }
-
-        .game-card:hover {
-            transform: scale(1.08);
-            background: rgba(255, 255, 255, 0.4);
-            box-shadow: 0 0 30px rgba(161, 217, 255, 0.6);
-        }
-
-        .game-card img {
-            width: 100%;
-            height: 140px;
-            object-fit: cover;
-            border-radius: 12px;
-            border: 2px solid rgba(255,255,255,0.5);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        }
-
-        .game-card h4 {
-            margin: 15px 0 5px;
-            font-size: 18px;
-            font-weight: 600;
-        }
-
-        .btn-delete {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            background: linear-gradient(180deg, #ff5f5f 0%, #cc0000 100%);
-            border: 1px solid #fff;
-            border-radius: 50%;
-            width: 26px; height: 26px;
-            color: white;
-            cursor: pointer;
-            display: none;
-            z-index: 10;
-        }
-
-        .game-card:hover .btn-delete { display: block; }
-
-        #publishFrame, #gamePlayFrame {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 20, 40, 0.7);
-            backdrop-filter: blur(10px);
-            z-index: 2000;
-            padding: 20px;
-        }
-
-        .modal-content {
-            background: linear-gradient(180deg, #f0f0f0 0%, #e0e0e0 100%);
-            max-width: 600px;
-            margin: 40px auto;
-            padding: 0;
-            border-radius: 12px;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.8);
-            border: 1px solid #555;
-            color: #333;
-            overflow: hidden;
-            text-shadow: none;
-        }
-
-        .modal-header {
-            background: var(--win7-blue);
-            padding: 10px 20px;
-            color: white;
-            font-weight: bold;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #000;
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.4);
-        }
-
-        .modal-body { padding: 30px; }
-
-        input, textarea {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0 20px;
-            border: 1px solid #999;
-            border-radius: 5px;
-            box-sizing: border-box;
-            background: white;
-        }
-
-        .btn-post {
-            background: linear-gradient(180deg, #4faeff 0%, #0072ff 100%);
-            color: white;
-            border: 1px solid #0056b3;
-            padding: 15px;
-            width: 100%;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 16px;
-            cursor: pointer;
-        }
-
-        #gameViewport {
-            width: 100%;
-            height: 75vh;
-            background: black;
-            border: 1px solid #555;
-        }
-    </style>
-</head>
-<body>
-
-    <header>
-        <div class="logo">HTCLI GAMES</div>
-        <button id="btnOpenFrame">+</button>
-    </header>
-
-    <div class="main-container">
-        <div class="content-area">
-            <h2 id="counterTitle">Biblioteca</h2>
-            <div id="gamesList"></div>
-        </div>
-    </div>
-
-    <div id="publishFrame">
-        <div class="modal-content">
-            <div class="modal-header">
-                <span>Adicionar Novo Item</span>
-                <button onclick="closeAll()" style="background:red; color:white; border:none; padding:2px 8px; border-radius:3px; cursor:pointer;">X</button>
-            </div>
-            <div class="modal-body">
-                <input type="text" id="gameTitle" placeholder="Nome do Jogo">
-                <textarea id="gameHtml" rows="5" placeholder="Código de Incorporação (Embed)"></textarea>
-                <input type="file" id="gameImage" accept="image/*">
-                <button class="btn-post" id="btnPublish">Instalar</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="gamePlayFrame">
-        <div style="max-width: 1000px; margin: 0 auto; background:#333; border: 2px solid #555; border-radius:10px; overflow:hidden;">
-            <div class="modal-header">
-                <span id="playingTitle"></span>
-                <button onclick="closeAll()" style="background:red; color:white; border:none; padding:2px 8px; border-radius:3px; cursor:pointer;">X</button>
-            </div>
-            <iframe id="gameViewport"></iframe>
-        </div>
-    </div>
-
-    <script>
-        const gamesList = document.getElementById('gamesList');
-        const counterTitle = document.getElementById('counterTitle');
-        let gamesArray = JSON.parse(localStorage.getItem('htcli_db_v2')) || [];
-
-        document.getElementById('btnOpenFrame').onclick = () => {
-            document.getElementById('publishFrame').style.display = 'block';
-        };
-
-        function closeAll() {
-            document.getElementById('publishFrame').style.display = 'none';
-            document.getElementById('gamePlayFrame').style.display = 'none';
-            document.getElementById('gameViewport').srcdoc = "";
-        }
-
-        document.getElementById('btnPublish').onclick = () => {
-            const title = document.getElementById('gameTitle').value;
-            const code = document.getElementById('gameHtml').value;
-            const file = document.getElementById('gameImage').files[0];
-
-            if (!title || !code) return;
-
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (e) => save(title, code, e.target.result);
-                reader.readAsDataURL(file);
-            } else {
-                save(title, code, "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=400");
-            }
-        };
-
-        function save(title, html, imgSrc) {
-            gamesArray.push({ title, html, imgSrc });
-            localStorage.setItem('htcli_db_v2', JSON.stringify(gamesArray));
-            render();
-            closeAll();
-            document.getElementById('gameTitle').value = "";
-            document.getElementById('gameHtml').value = "";
-            document.getElementById('gameImage').value = "";
-        }
-
-        function deleteGame(idx, e) {
-            e.stopPropagation();
-            if(confirm("Remover da biblioteca?")) {
-                gamesArray.splice(idx, 1);
-                localStorage.setItem('htcli_db_v2', JSON.stringify(gamesArray));
-                render();
-            }
-        }
-
-        function render() {
-            gamesList.innerHTML = '';
-            counterTitle.innerText = `Biblioteca (${gamesArray.length})`;
-
-            gamesArray.forEach((g, i) => {
-                const card = document.createElement('div');
-                card.className = 'game-card';
-                card.innerHTML = `
-                    <button class="btn-delete" onclick="deleteGame(${i}, event)">✕</button>
-                    <img src="${g.imgSrc}">
-                    <h4>${g.title}</h4>
-                `;
-                card.onclick = () => {
-                    document.getElementById('playingTitle').innerText = g.title;
-                    document.getElementById('gamePlayFrame').style.display = 'block';
-                    document.getElementById('gameViewport').srcdoc = g.html.includes('<html') ? g.html : 
-                        `<!DOCTYPE html><html><body style="margin:0; background:#000; color:white;">${g.html}</body></html>`;
-                };
-                gamesList.appendChild(card);
-            });
-        }
-
-        render();
+        initAuth();
     </script>
 </body>
 </html>
