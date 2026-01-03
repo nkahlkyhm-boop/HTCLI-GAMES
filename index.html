@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HTCLI GAMES </title>
+    <title>HTCLI GAMES - Supabase Edition</title>
     
-  
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
@@ -97,11 +96,28 @@
             padding: 30px;
         }
 
+        .search-container {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .search-bar {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--glass-border);
+            padding: 12px 20px;
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            outline: none;
+            user-select: text;
+        }
+        .search-bar::placeholder { color: rgba(255, 255, 255, 0.5); }
+
         #gamesList {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
             gap: 25px;
-            margin-top: 25px;
         }
 
         .game-card {
@@ -116,7 +132,6 @@
         .game-card:hover { transform: translateY(-5px); background: rgba(255,255,255,0.1); }
         .game-card img { width: 100%; height: 150px; object-fit: cover; border-radius: 12px; margin-bottom: 12px; background: #222; }
 
-        /* MODAIS */
         .overlay {
             display: none;
             position: fixed;
@@ -162,7 +177,6 @@
             user-select: text;
         }
 
-      
         .captcha-container { background: #fff; border: 1px solid #ccc; margin-bottom: 15px; padding: 2px; }
         .captcha-banner {
             background: #4a90e2;
@@ -212,19 +226,25 @@
     <header>
         <div class="logo">HTCLI GAMES</div>
         <div class="user-controls">
-            <div id="authStatus">A verificar...</div>
+            <div id="authStatus">...</div>
             <button id="btnOpenFrame">+</button>
         </div>
     </header>
 
     <div class="main-container">
         <div class="content-area">
-            <h2 style="margin-top:0">Biblioteca de Jogos</h2>
-            <div id="gamesList">Carregando biblioteca...</div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="margin:0">Biblioteca de Jogos</h2>
+            </div>
+            
+            <div class="search-container">
+                <input type="text" id="gameSearch" class="search-bar" placeholder="Pesquisar jogos...">
+            </div>
+
+            <div id="gamesList"></div>
         </div>
     </div>
 
-    <!-- Modal de Auth -->
     <div id="authFrame" class="overlay">
         <div class="modal-content">
             <div class="modal-header">
@@ -236,14 +256,12 @@
                     <div id="tabLogin" class="auth-tab active" onclick="setAuthMode(true)">Entrar</div>
                     <div id="tabSignup" class="auth-tab" onclick="setAuthMode(false)">Registar</div>
                 </div>
-                
                 <input type="email" id="authEmail" placeholder="Email">
                 <input type="password" id="authPassword" placeholder="Senha">
-                
                 <div id="signupOnly" style="display: none;">
                     <div class="captcha-container">
                         <div class="captcha-banner">
-                            <div>Selecione todos os<br><b>teclados</b></div>
+                            <div>Selecione os<br><b>teclados</b></div>
                             <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/RecaptchaLogo.svg/250px-RecaptchaLogo.svg.png" style="width:30px; height:30px;">
                         </div>
                         <div id="captchaGrid" class="captcha-grid"></div>
@@ -253,26 +271,23 @@
                         </div>
                     </div>
                 </div>
-                
                 <button class="btn-action" id="btnAuthSubmit">Confirmar</button>
             </div>
         </div>
     </div>
-
 
     <div id="publishFrame" class="overlay">
         <div class="modal-content" style="max-width: 500px;">
             <div class="modal-header"><span>Novo Jogo</span><button onclick="closeModals()">✕</button></div>
             <div class="modal-body">
                 <input type="text" id="gTitle" placeholder="Nome do Jogo">
-                <input type="text" id="gImg" placeholder="Link da Imagem (Opcional)">
-                <textarea id="gCode" rows="10" placeholder="Insira aqui o código HTML do seu jogo..."></textarea>
-                <button class="btn-action" id="btnPublish">Publicar na Nuven</button>
+                <input type="text" id="gImg" placeholder="Link da Imagem">
+                <textarea id="gCode" rows="10" placeholder="Código HTML..."></textarea>
+                <button class="btn-action" id="btnPublish">Publicar</button>
             </div>
         </div>
     </div>
 
-    <!-- Janela Jogo -->
     <div id="gamePlayFrame" class="overlay" style="padding: 0;">
         <div style="width: 100%; height: 100%; display: flex; flex-direction: column;">
             <div class="modal-header">
@@ -284,20 +299,18 @@
     </div>
 
     <script>
-
         const SUPABASE_URL = 'https://rwdnqbbbazfdamwtmezu.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ3ZG5xYmJiYXpmZGFtd3RtZXp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc0NDQ1MDcsImV4cCI6MjA4MzAyMDUwN30.vwcCQIvrqCV21nc0QN8iBG_rN0ZurSZttjPUfgVZqIc';
         
-      
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         let currentUser = null;
+        let allGames = [];
         let isLogin = true;
         let captchaDone = false;
         let selectedTiles = new Set();
         const trafficLightImg = "https://images.unsplash.com/photo-1510674485131-dc88d96369b4?w=400&h=400&fit=crop";
 
-    
         window.closeModals = () => {
             document.querySelectorAll('.overlay').forEach(f => f.style.display='none');
             document.getElementById('gameViewport').srcdoc = "";
@@ -310,7 +323,6 @@
             document.getElementById('signupOnly').style.display = login ? 'none' : 'block';
             if(!login) renderCaptcha();
         };
-
 
         function renderCaptcha() {
             const grid = document.getElementById('captchaGrid');
@@ -335,13 +347,14 @@
                 captchaDone = true;
                 document.getElementById('captchaGrid').style.opacity = "0.5";
                 document.getElementById('captchaGrid').style.pointerEvents = "none";
-                alert("Captcha verificado com sucesso!");
-            } else {
-                alert("Por favor, selecione os semáforos.");
             }
         };
 
-   
+        _supabase.auth.onAuthStateChange((event, session) => {
+            currentUser = session?.user || null;
+            updateAuthUI();
+        });
+
         async function checkSession() {
             const { data: { user } } = await _supabase.auth.getUser();
             currentUser = user;
@@ -352,71 +365,47 @@
         function updateAuthUI() {
             const status = document.getElementById('authStatus');
             if(currentUser) {
-                const name = currentUser.email.split('@')[0];
-                status.innerHTML = `<div class="user-badge" onclick="handleLogout()">👤 ${name}</div>`;
+                status.innerHTML = `<div class="user-badge" onclick="handleLogout()">👤 ${currentUser.email.split('@')[0]}</div>`;
             } else {
                 status.innerHTML = `<button class="btn-ui" onclick="document.getElementById('authFrame').style.display='block'">Entrar</button>`;
             }
         }
 
         async function handleLogout() {
-            if(confirm('Deseja encerrar a sessão?')) {
-                await _supabase.auth.signOut();
-                location.reload();
-            }
+            if(confirm('Sair?')) await _supabase.auth.signOut();
         }
 
         document.getElementById('btnAuthSubmit').onclick = async () => {
             const email = document.getElementById('authEmail').value;
             const password = document.getElementById('authPassword').value;
-
-            if(!email || !password) return alert("Preencha todos os campos.");
+            if(!email || !password) return;
 
             try {
                 if (isLogin) {
                     const { error } = await _supabase.auth.signInWithPassword({ email, password });
                     if (error) throw error;
                 } else {
-                    if (!captchaDone) return alert("Complete o captcha primeiro!");
+                    if (!captchaDone) return;
                     const { error } = await _supabase.auth.signUp({ email, password });
                     if (error) throw error;
-                    alert("Registo concluído! Se o email estiver ativo, verifique a sua caixa de entrada.");
                 }
                 closeModals();
-                checkSession();
-            } catch (e) {
-                alert("Erro: " + e.message);
-            }
+            } catch (e) { console.error(e); }
         };
 
-       
         async function loadGames() {
+            const { data } = await _supabase.from('games_repository').select('*').order('created_at', { ascending: false });
+            allGames = data || [];
+            displayGames(allGames);
+        }
+
+        function displayGames(games) {
             const list = document.getElementById('gamesList');
-            
-            const { data, error } = await _supabase
-                .from('games_repository')
-                .select('*')
-                .order('created_at', { ascending: false });
-
-            if (error) {
-                list.innerHTML = `<p style="color: #ff6b6b">Erro ao carregar jogos: ${error.message}</p>`;
-                return;
-            }
-
-            if (data.length === 0) {
-                list.innerHTML = "<p>Ainda não há jogos publicados. Sê o primeiro!</p>";
-                return;
-            }
-
             list.innerHTML = '';
-            data.forEach(g => {
+            games.forEach(g => {
                 const card = document.createElement('div');
                 card.className = 'game-card';
-                card.innerHTML = `
-                    <img src="${g.img_src || 'https://via.placeholder.com/240x150/111/fff?text=Sem+Imagem'}" onerror="this.src='https://via.placeholder.com/240x150/111/fff?text=Erro+Imagem'">
-                    <strong>${g.title}</strong><br>
-                    <small style="opacity: 0.7">Por: ${g.owner_name}</small>
-                `;
+                card.innerHTML = `<img src="${g.img_src || ''}"><strong>${g.title}</strong><br><small>${g.owner_name}</small>`;
                 card.onclick = () => {
                     document.getElementById('playTitle').innerText = g.title;
                     document.getElementById('gameViewport').srcdoc = g.html_content;
@@ -426,8 +415,13 @@
             });
         }
 
+        document.getElementById('gameSearch').oninput = (e) => {
+            const term = e.target.value.toLowerCase();
+            displayGames(allGames.filter(g => g.title.toLowerCase().includes(term) || g.owner_name.toLowerCase().includes(term)));
+        };
+
         document.getElementById('btnOpenFrame').onclick = () => {
-            if(!currentUser) return alert("Precisas de estar logado para publicar jogos!");
+            if(!currentUser) return;
             document.getElementById('publishFrame').style.display = 'block';
         };
 
@@ -435,40 +429,14 @@
             const title = document.getElementById('gTitle').value;
             const html = document.getElementById('gCode').value;
             const img = document.getElementById('gImg').value;
-
-            if(!title || !html) return alert("Título e Código são obrigatórios!");
-
-            const btn = document.getElementById('btnPublish');
-            btn.innerText = "Publicando...";
-            btn.disabled = true;
-
+            if(!title || !html) return;
             try {
-                const { error } = await _supabase.from('games_repository').insert([
-                    { 
-                        title: title, 
-                        html_content: html, 
-                        img_src: img, 
-                        owner_id: currentUser.id, 
-                        owner_name: currentUser.email.split('@')[0] 
-                    }
-                ]);
-
-                if (error) throw error;
-                
-                alert("Jogo publicado com sucesso!");
-                document.getElementById('gTitle').value = "";
-                document.getElementById('gCode').value = "";
+                await _supabase.from('games_repository').insert([{ title, html_content: html, img_src: img, owner_id: currentUser.id, owner_name: currentUser.email.split('@')[0] }]);
                 closeModals();
                 loadGames();
-            } catch (e) {
-                alert("Erro na publicação: " + e.message);
-            } finally {
-                btn.innerText = "Publicar na Cloud";
-                btn.disabled = false;
-            }
+            } catch (e) { console.error(e); }
         };
 
-        // Inicialização do APP
         checkSession();
     </script>
 </body>
