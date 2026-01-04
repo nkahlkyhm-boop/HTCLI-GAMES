@@ -195,6 +195,18 @@
         .btn-action:disabled { background: #ccc; cursor: not-allowed; }
 
         iframe { width: 100%; height: 85vh; border: none; background: #fff; }
+
+        /* Estilo para avisar se o jogo falhar */
+        .game-loader-overlay {
+            position: absolute;
+            inset: 0;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: -1; /* Fica atrás do iframe */
+        }
     </style>
 </head>
 <body>
@@ -221,6 +233,7 @@
         </div>
     </div>
 
+    <!-- Modais -->
     <div id="authFrame" class="overlay">
         <div class="modal-content">
             <div class="modal-header">
@@ -252,12 +265,19 @@
     </div>
 
     <div id="gamePlayFrame" class="overlay" style="padding: 0;">
-        <div style="width: 100%; height: 100%; display: flex; flex-direction: column;">
+        <div style="width: 100%; height: 100%; display: flex; flex-direction: column; position: relative;">
             <div class="modal-header">
                 <span id="playTitle"></span>
-                <button onclick="closeModals()">Sair do Jogo</button>
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="reloadCurrentGame()" style="font-size: 14px; background: rgba(0,0,0,0.2); border-radius: 4px; padding: 2px 8px;">Recarregar</button>
+                    <button onclick="closeModals()">Sair</button>
+                </div>
             </div>
-            <iframe id="gameViewport" sandbox="allow-scripts allow-same-origin allow-forms"></iframe>
+            <div class="game-loader-overlay">
+                <p>A carregar jogo...</p>
+                <small>Se ficar branco, clique em Recarregar.</small>
+            </div>
+            <iframe id="gameViewport" sandbox="allow-scripts allow-same-origin allow-forms allow-modals"></iframe>
         </div>
     </div>
 
@@ -270,18 +290,14 @@
         let currentUser = null;
         let allGames = [];
         let isLogin = true;
-        let currentBlobUrl = null;
+        let currentActiveGameContent = null;
 
         window.closeModals = () => {
             document.querySelectorAll('.overlay').forEach(f => f.style.display='none');
             const viewport = document.getElementById('gameViewport');
             viewport.src = "about:blank";
-            viewport.srcdoc = "";
-            // Libera memória do blob anterior se existir
-            if(currentBlobUrl) {
-                URL.revokeObjectURL(currentBlobUrl);
-                currentBlobUrl = null;
-            }
+            viewport.removeAttribute('srcdoc');
+            currentActiveGameContent = null;
         };
 
         window.setAuthMode = (login) => {
@@ -289,6 +305,30 @@
             document.getElementById('tabLogin').classList.toggle('active', login);
             document.getElementById('tabSignup').classList.toggle('active', !login);
             document.getElementById('authTitle').innerText = login ? 'Login' : 'Criar Conta';
+        };
+
+        // Função para carregar o jogo com mais compatibilidade
+        function loadGameIntoViewport(content) {
+            const viewport = document.getElementById('gameViewport');
+            currentActiveGameContent = content;
+            
+            // Método 1: srcdoc (mais seguro para GitHub Pages)
+            // Fazemos um pequeno replace para garantir que caracteres especiais não quebrem o atributo
+            viewport.srcdoc = content;
+            
+            // Fallback se o srcdoc falhar (em navegadores muito antigos ou restritos)
+            setTimeout(() => {
+                if(!viewport.srcdoc && content) {
+                    const blob = new Blob([content], { type: 'text/html' });
+                    viewport.src = URL.createObjectURL(blob);
+                }
+            }, 500);
+        }
+
+        window.reloadCurrentGame = () => {
+            if(currentActiveGameContent) {
+                loadGameIntoViewport(currentActiveGameContent);
+            }
         };
 
         _supabase.auth.onAuthStateChange((event, session) => {
@@ -348,7 +388,7 @@
                 } else {
                     const { error } = await _supabase.auth.signUp({ email, password });
                     if (error) throw error;
-                    alert("Conta criada! Verifique seu email se necessário.");
+                    alert("Conta criada! Verifique o seu email.");
                 }
             } catch (e) { 
                 alert("Erro: " + e.message); 
@@ -365,7 +405,7 @@
                 allGames = data || [];
                 displayGames(allGames);
             } catch (e) {
-                list.innerHTML = "Erro ao carregar jogos.";
+                list.innerHTML = "Erro ao carregar jogos da Cloud.";
             }
         }
 
@@ -380,24 +420,17 @@
                 const card = document.createElement('div');
                 card.className = 'game-card';
                 card.innerHTML = `
-                    <img src="${g.img_src || 'https://via.placeholder.com/300x150?text=Sem+Imagem'}" onerror="this.src='https://via.placeholder.com/300x150?text=Erro+Imagem'">
+                    <img src="${g.img_src || 'https://via.placeholder.com/300x150?text=HTCLI+GAME'}" onerror="this.src='https://via.placeholder.com/300x150?text=Erro+Imagem'">
                     <div style="padding: 10px;">
                         <strong>${g.title}</strong><br>
-                        <small style="opacity: 0.6">Autor: ${g.owner_name || 'Anónimo'}</small>
+                        <small style="opacity: 0.6">Por: ${g.owner_name || 'Anónimo'}</small>
                     </div>
                 `;
                 card.onclick = () => {
-                    if(!g.html_content) return alert("Este jogo não tem conteúdo!");
-                    
+                    if(!g.html_content) return alert("Erro: Conteúdo vazio.");
                     document.getElementById('playTitle').innerText = g.title;
-                    const viewport = document.getElementById('gameViewport');
-                    
-                    // Método robusto usando Blob URL para evitar bloqueios de srcdoc
-                    const blob = new Blob([g.html_content], { type: 'text/html' });
-                    currentBlobUrl = URL.createObjectURL(blob);
-                    viewport.src = currentBlobUrl;
-                    
                     document.getElementById('gamePlayFrame').style.display = 'block';
+                    loadGameIntoViewport(g.html_content);
                 };
                 list.appendChild(card);
             });
@@ -413,7 +446,7 @@
         };
 
         document.getElementById('btnOpenFrame').onclick = () => {
-            if(!currentUser) return alert("Faz login para publicar!");
+            if(!currentUser) return alert("Inicie sessão para publicar!");
             document.getElementById('publishFrame').style.display = 'block';
         };
 
@@ -422,7 +455,7 @@
             const html = document.getElementById('gCode').value;
             const img = document.getElementById('gImg').value;
             
-            if(!title || !html) return alert("Preencha o título e o código!");
+            if(!title || !html) return alert("Título e código são obrigatórios!");
 
             try {
                 const gameData = {
@@ -434,10 +467,9 @@
                 };
 
                 const { error } = await _supabase.from('games_repository').insert([gameData]);
-                
                 if(error) throw error;
                 
-                alert("Publicado com sucesso!");
+                alert("Jogo enviado para a biblioteca!");
                 closeModals();
                 loadGames();
             } catch (e) { 
