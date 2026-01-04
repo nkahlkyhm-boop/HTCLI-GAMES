@@ -232,7 +232,6 @@
     <header>
         <div class="logo">HTCLI GAMES</div>
         <div class="user-controls">
-            <!-- Espaço onde o botão Entrar ou o Badge do utilizador aparecerão -->
             <div id="authContainer"></div>
             <button id="btnOpenFrame" title="Publicar Jogo">+</button>
         </div>
@@ -359,7 +358,6 @@
             }
         };
 
-        // Escuta mudanças de estado de autenticação
         _supabase.auth.onAuthStateChange((event, session) => {
             currentUser = session?.user || null;
             updateAuthUI();
@@ -379,7 +377,6 @@
         function updateAuthUI() {
             const container = document.getElementById('authContainer');
             if(currentUser) {
-                // Se o utilizador existe, mostra o badge e esconde o botão de login
                 const username = currentUser.email.split('@')[0];
                 container.innerHTML = `
                     <div class="user-badge" onclick="handleLogout()" title="Clique para sair">
@@ -388,7 +385,6 @@
                     </div>
                 `;
             } else {
-                // Se não existe, mostra o botão para entrar/cadastrar
                 container.innerHTML = `
                     <button class="btn-ui" onclick="document.getElementById('authFrame').style.display='block'">
                         Entrar / Registar
@@ -400,7 +396,7 @@
         async function handleLogout() {
             if(confirm('Deseja encerrar a sessão?')) {
                 await _supabase.auth.signOut();
-                location.reload(); // Recarrega para limpar estados
+                location.reload();
             }
         }
 
@@ -513,6 +509,7 @@
                 
                 alert("Jogo publicado com sucesso!");
                 document.getElementById('gTitle').value = "";
+                document.getElementById('gImg').value = "";
                 document.getElementById('gCode').value = "";
                 closeModals();
                 loadGames();
