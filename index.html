@@ -182,36 +182,6 @@
             user-select: text;
         }
 
-        .captcha-container { background: #fff; border: 1px solid #ccc; margin-bottom: 15px; padding: 2px; }
-        .captcha-banner {
-            background: #4a90e2;
-            color: white;
-            padding: 10px;
-            display: flex;
-            justify-content: space-between;
-            font-size: 13px;
-            align-items: center;
-        }
-        .captcha-banner b { font-size: 16px; display: block; }
-        .captcha-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; background: #eee; }
-        .captcha-tile { aspect-ratio: 1; background-size: cover; background-position: center; cursor: pointer; position: relative; }
-        .captcha-tile.selected::after {
-            content: "✓";
-            position: absolute;
-            inset: 5px;
-            background: #4a90e2;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            border: 2px solid #fff;
-            font-weight: bold;
-            font-size: 14px;
-        }
-        .captcha-footer { display: flex; justify-content: space-between; padding: 8px; border-top: 1px solid #eee; }
-        .btn-verify { background: #4a90e2; color: white; border: none; padding: 8px 15px; font-weight: bold; cursor: pointer; border-radius: 3px; }
-
         .btn-action {
             background: #007bff;
             color: white;
@@ -264,19 +234,6 @@
                 </div>
                 <input type="email" id="authEmail" placeholder="Email">
                 <input type="password" id="authPassword" placeholder="Senha">
-                <div id="signupOnly" style="display: none;">
-                    <div class="captcha-container">
-                        <div class="captcha-banner">
-                            <div>Selecione os<br><b>teclados</b></div>
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/RecaptchaLogo.svg/250px-RecaptchaLogo.svg.png" style="width:30px; height:30px;">
-                        </div>
-                        <div id="captchaGrid" class="captcha-grid"></div>
-                        <div class="captcha-footer">
-                            <span style="color:#777; font-size:18px;">🔄 ℹ️</span>
-                            <button type="button" class="btn-verify" id="btnVerify">VERIFICAR</button>
-                        </div>
-                    </div>
-                </div>
                 <button class="btn-action" id="btnAuthSubmit">Confirmar</button>
             </div>
         </div>
@@ -300,7 +257,7 @@
                 <span id="playTitle"></span>
                 <button onclick="closeModals()">Sair do Jogo</button>
             </div>
-            <iframe id="gameViewport" sandbox="allow-scripts"></iframe>
+            <iframe id="gameViewport" sandbox="allow-scripts allow-same-origin allow-forms"></iframe>
         </div>
     </div>
 
@@ -313,49 +270,25 @@
         let currentUser = null;
         let allGames = [];
         let isLogin = true;
-        let captchaDone = false;
-        let selectedTiles = new Set();
-        const trafficLightImg = "https://images.unsplash.com/photo-1510674485131-dc88d96369b4?w=400&h=400&fit=crop";
+        let currentBlobUrl = null;
 
         window.closeModals = () => {
             document.querySelectorAll('.overlay').forEach(f => f.style.display='none');
-            document.getElementById('gameViewport').srcdoc = "";
+            const viewport = document.getElementById('gameViewport');
+            viewport.src = "about:blank";
+            viewport.srcdoc = "";
+            // Libera memória do blob anterior se existir
+            if(currentBlobUrl) {
+                URL.revokeObjectURL(currentBlobUrl);
+                currentBlobUrl = null;
+            }
         };
 
         window.setAuthMode = (login) => {
             isLogin = login;
             document.getElementById('tabLogin').classList.toggle('active', login);
             document.getElementById('tabSignup').classList.toggle('active', !login);
-            document.getElementById('signupOnly').style.display = login ? 'none' : 'block';
             document.getElementById('authTitle').innerText = login ? 'Login' : 'Criar Conta';
-            if(!login) renderCaptcha();
-        };
-
-        function renderCaptcha() {
-            const grid = document.getElementById('captchaGrid');
-            grid.innerHTML = '';
-            selectedTiles.clear();
-            captchaDone = false;
-            for(let i=0; i<9; i++) {
-                const t = document.createElement('div');
-                t.className = 'captcha-tile';
-                t.style.backgroundImage = `url(${trafficLightImg})`;
-                t.style.backgroundPosition = `${(i % 3) * 50}% ${Math.floor(i / 3) * 50}%`;
-                t.onclick = () => {
-                    t.classList.toggle('selected');
-                    t.classList.contains('selected') ? selectedTiles.add(i) : selectedTiles.delete(i);
-                };
-                grid.appendChild(t);
-            }
-        }
-
-        document.getElementById('btnVerify').onclick = () => {
-            if(selectedTiles.size >= 3) {
-                captchaDone = true;
-                document.getElementById('captchaGrid').style.opacity = "0.5";
-                document.getElementById('captchaGrid').style.pointerEvents = "none";
-                document.getElementById('btnVerify').innerText = "OK";
-            }
         };
 
         _supabase.auth.onAuthStateChange((event, session) => {
@@ -406,49 +339,41 @@
             const btn = document.getElementById('btnAuthSubmit');
 
             if(!email || !password) return alert("Preencha todos os campos!");
-
             btn.disabled = true;
-            btn.innerText = "Processando...";
 
             try {
                 if (isLogin) {
                     const { error } = await _supabase.auth.signInWithPassword({ email, password });
                     if (error) throw error;
                 } else {
-                    if (!captchaDone) {
-                        btn.disabled = false;
-                        btn.innerText = "Confirmar";
-                        return alert("Por favor, resolva o captcha primeiro!");
-                    }
                     const { error } = await _supabase.auth.signUp({ email, password });
                     if (error) throw error;
-                    alert("Conta criada! Se necessário, verifique o seu email.");
+                    alert("Conta criada! Verifique seu email se necessário.");
                 }
             } catch (e) { 
                 alert("Erro: " + e.message); 
+            } finally {
                 btn.disabled = false;
-                btn.innerText = "Confirmar";
             }
         };
 
         async function loadGames() {
             const list = document.getElementById('gamesList');
-            const { data, error } = await _supabase.from('games_repository').select('*').order('created_at', { ascending: false });
-            
-            if(error) {
-                list.innerHTML = "Erro ao carregar biblioteca.";
-                return;
+            try {
+                const { data, error } = await _supabase.from('games_repository').select('*').order('created_at', { ascending: false });
+                if(error) throw error;
+                allGames = data || [];
+                displayGames(allGames);
+            } catch (e) {
+                list.innerHTML = "Erro ao carregar jogos.";
             }
-            
-            allGames = data || [];
-            displayGames(allGames);
         }
 
         function displayGames(games) {
             const list = document.getElementById('gamesList');
             list.innerHTML = '';
             if(games.length === 0) {
-                list.innerHTML = "<p style='grid-column: 1/-1; text-align: center; opacity: 0.5;'>Nenhum jogo disponível ainda.</p>";
+                list.innerHTML = "<p style='grid-column: 1/-1; text-align: center; opacity: 0.5;'>Nenhum jogo disponível.</p>";
                 return;
             }
             games.forEach(g => {
@@ -458,12 +383,20 @@
                     <img src="${g.img_src || 'https://via.placeholder.com/300x150?text=Sem+Imagem'}" onerror="this.src='https://via.placeholder.com/300x150?text=Erro+Imagem'">
                     <div style="padding: 10px;">
                         <strong>${g.title}</strong><br>
-                        <small style="opacity: 0.6">Autor: ${g.owner_name}</small>
+                        <small style="opacity: 0.6">Autor: ${g.owner_name || 'Anónimo'}</small>
                     </div>
                 `;
                 card.onclick = () => {
+                    if(!g.html_content) return alert("Este jogo não tem conteúdo!");
+                    
                     document.getElementById('playTitle').innerText = g.title;
-                    document.getElementById('gameViewport').srcdoc = g.html_content;
+                    const viewport = document.getElementById('gameViewport');
+                    
+                    // Método robusto usando Blob URL para evitar bloqueios de srcdoc
+                    const blob = new Blob([g.html_content], { type: 'text/html' });
+                    currentBlobUrl = URL.createObjectURL(blob);
+                    viewport.src = currentBlobUrl;
+                    
                     document.getElementById('gamePlayFrame').style.display = 'block';
                 };
                 list.appendChild(card);
@@ -474,18 +407,13 @@
             const term = e.target.value.toLowerCase();
             const filtered = allGames.filter(g => 
                 g.title.toLowerCase().includes(term) || 
-                g.owner_name.toLowerCase().includes(term)
+                (g.owner_name && g.owner_name.toLowerCase().includes(term))
             );
             displayGames(filtered);
         };
 
         document.getElementById('btnOpenFrame').onclick = () => {
-            if(!currentUser) {
-                setAuthMode(true);
-                document.getElementById('authFrame').style.display = 'block';
-                alert("É necessário estar logado para publicar jogos!");
-                return;
-            }
+            if(!currentUser) return alert("Faz login para publicar!");
             document.getElementById('publishFrame').style.display = 'block';
         };
 
@@ -494,26 +422,27 @@
             const html = document.getElementById('gCode').value;
             const img = document.getElementById('gImg').value;
             
-            if(!title || !html) return alert("Título e código são obrigatórios!");
+            if(!title || !html) return alert("Preencha o título e o código!");
 
             try {
-                const { error } = await _supabase.from('games_repository').insert([{ 
-                    title, 
-                    html_content: html, 
-                    img_src: img, 
-                    owner_id: currentUser.id, 
-                    owner_name: currentUser.email.split('@')[0] 
-                }]);
+                const gameData = {
+                    title: title,
+                    html_content: html,
+                    img_src: img || null,
+                    owner_id: currentUser.id,
+                    owner_name: currentUser.email.split('@')[0]
+                };
+
+                const { error } = await _supabase.from('games_repository').insert([gameData]);
                 
                 if(error) throw error;
                 
-                alert("Jogo publicado com sucesso!");
-                document.getElementById('gTitle').value = "";
-                document.getElementById('gImg').value = "";
-                document.getElementById('gCode').value = "";
+                alert("Publicado com sucesso!");
                 closeModals();
                 loadGames();
-            } catch (e) { alert("Erro ao publicar: " + e.message); }
+            } catch (e) { 
+                alert("Erro ao publicar: " + e.message); 
+            }
         };
 
         checkSession();
