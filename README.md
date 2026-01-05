@@ -16,3 +16,5 @@ Oi, esse é meu site HTCLI-GAMES, eu criei ele porque eu tava entediado então e
 
 💵Donate:
 Ajude o site fazendo um donate de qualquer valor, pois você vai me ajudar a me motivar a fazer atualizações melhores.
+
+site desenvolvido por: nkahlkyhm
