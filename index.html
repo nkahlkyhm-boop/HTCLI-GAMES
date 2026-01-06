@@ -15,6 +15,7 @@
           
             --fa-green: linear-gradient(180deg, #9dd53a 0%, #a1d54f 45%, #80c217 50%, #7cbc0a 100%);
             --fa-blue: linear-gradient(180deg, #4facfe 0%, #00f2fe 100%);
+            --fa-orange: linear-gradient(180deg, #ffb347 0%, #ffcc33 100%);
             --fa-gloss: rgba(255, 255, 255, 0.5);
         }
 
@@ -52,7 +53,7 @@
             cursor: pointer;
         }
 
-        .user-controls { display: flex; align-items: center; gap: 15px; }
+        .user-controls { display: flex; align-items: center; gap: 10px; }
 
         .user-badge {
             background: rgba(0, 123, 255, 0.4);
@@ -82,24 +83,31 @@
         .btn-ui:hover { background: rgba(255, 255, 255, 0.3); }
 
         /* Frutiger Aero Buttons */
-        .btn-fa-donate {
-            background: var(--fa-green);
+        .btn-fa {
             color: white;
             border: 2px solid #fff;
-            padding: 8px 25px;
+            padding: 8px 20px;
             border-radius: 50px;
             font-weight: bold;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
             cursor: pointer;
             box-shadow: 0 4px 15px rgba(0,0,0,0.3), inset 0 2px 5px var(--fa-gloss);
             transition: transform 0.2s, box-shadow 0.2s;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.4);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
         }
-        .btn-fa-donate:hover {
+        .btn-fa:hover {
             transform: scale(1.05);
             box-shadow: 0 6px 20px rgba(0,0,0,0.4), inset 0 2px 8px var(--fa-gloss);
         }
+
+        .btn-fa-green { background: var(--fa-green); }
+        .btn-fa-blue { background: var(--fa-blue); color: #004a8d; text-shadow: none; border-color: rgba(255,255,255,0.8); }
+        .btn-fa-orange { background: var(--fa-orange); }
 
         #btnOpenFrame {
             background: linear-gradient(180deg, #9dd53a 0%, #67a602 100%);
@@ -126,7 +134,6 @@
             padding: 30px;
         }
 
-       
         .donate-card {
             background: rgba(255, 255, 255, 0.15);
             border: 2px solid rgba(255,255,255,0.4);
@@ -181,7 +188,6 @@
             font-style: italic;
         }
 
-     
         .search-container { margin-bottom: 25px; position: relative; }
         .search-bar {
             width: 100%; background: rgba(255, 255, 255, 0.1); border: 1px solid var(--glass-border);
@@ -203,13 +209,35 @@
             backdrop-filter: blur(8px); z-index: 2000; padding: 20px; overflow-y: auto;
         }
 
-        .modal-content { background: #fff; max-width: 380px; margin: 20px auto; border-radius: 12px; overflow: hidden; color: #333; }
+        .modal-content { background: #fff; max-width: 380px; margin: 20px auto; border-radius: 12px; overflow: hidden; color: #333; position: relative; }
         .modal-header {
             background: var(--win7-blue); padding: 12px 20px; color: white; display: flex;
             justify-content: space-between; align-items: center;
         }
         .modal-header button { background: none; border: none; color: white; cursor: pointer; font-size: 20px; }
         .modal-body { padding: 20px; }
+
+        /* Share Menu Styling */
+        .share-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .share-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            padding: 15px;
+            border-radius: 12px;
+            background: #f0f8ff;
+            cursor: pointer;
+            transition: 0.2s;
+            border: 1px solid #c0e0ff;
+        }
+        .share-item:hover { background: #e0f0ff; transform: scale(1.03); }
+        .share-item svg { width: 32px; height: 32px; }
 
         .auth-tabs { display: flex; border-bottom: 2px solid #eee; margin-bottom: 15px; }
         .auth-tab { flex: 1; padding: 10px; text-align: center; cursor: pointer; font-weight: bold; color: #888; }
@@ -230,7 +258,6 @@
             flex-direction: column; justify-content: center; align-items: center; z-index: -1;
         }
 
-   
         .page { display: none; }
         .page.active { display: block; animation: fadeIn 0.5s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -241,14 +268,17 @@
     <header>
         <div class="logo" onclick="showPage('library')">HTCLI GAMES</div>
         <div class="user-controls">
-            <button class="btn-fa-donate" onclick="showPage('donate')">Donate</button>
+            <button class="btn-fa btn-fa-blue" onclick="openShareMenu()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92c0-1.61-1.31-2.92-2.92-2.92zM18 4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM6 13c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm12 7.02c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1z"/></svg>
+                Share
+            </button>
+            <button class="btn-fa btn-fa-green" onclick="showPage('donate')">Donate</button>
             <div id="authContainer"></div>
             <button id="btnOpenFrame" title="Publicar Jogo">+</button>
         </div>
     </header>
 
     <div class="main-container">
- 
         <div id="page-library" class="page active">
             <div class="content-area">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
@@ -263,7 +293,6 @@
             </div>
         </div>
 
-  
         <div id="page-donate" class="page">
             <div class="donate-card">
                 <h1>Donate</h1>
@@ -275,9 +304,35 @@
                     "Doe para me motivar a fazer mais atualizações e que eu possa comprar mais comida na padaria."
                 </p>
                 
-                <button class="btn-fa-donate" style="width: 80%; padding: 15px; font-size: 20px;" onclick="handleDonate()">DOAR</button>
+                <button class="btn-fa btn-fa-green" style="width: 80%; padding: 15px; font-size: 20px;" onclick="handleDonate()">DOAR</button>
                 
                 <p style="margin-top: 20px;"><a href="#" onclick="showPage('library')" style="color: #fff; opacity: 0.7;">Voltar para a biblioteca</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Share Overlay -->
+    <div id="shareFrame" class="overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>Partilhar HTCLI GAMES</span>
+                <button onclick="closeModals()">✕</button>
+            </div>
+            <div class="modal-body">
+                <p style="font-size: 14px; text-align: center; color: #666; margin-bottom: 15px;">Espalhe a diversão com seus amigos!</p>
+                <div class="share-grid">
+                    <div class="share-item" onclick="shareTo('whatsapp')">
+                        <svg viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                        <span>WhatsApp</span>
+                    </div>
+                    <div class="share-item" onclick="shareTo('instagram')">
+                        <svg viewBox="0 0 24 24" fill="#E4405F"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                        <span>Instagram</span>
+                    </div>
+                </div>
+                <div style="margin-top: 20px;">
+                    <button class="btn-action" onclick="copyLink()">Copiar Link</button>
+                </div>
             </div>
         </div>
     </div>
@@ -307,7 +362,7 @@
                 <input type="text" id="gTitle" placeholder="Nome do Jogo">
                 <input type="text" id="gImg" placeholder="Link da Imagem (URL)">
                 <textarea id="gCode" rows="10" placeholder="Cole aqui o seu código HTML..."></textarea>
-                <button class="btn-action" id="btnPublish">Publicar na Cloud</button>
+                <button class="btn-action" id="btnPublish">Publicar na Biblioteca</button>
             </div>
         </div>
     </div>
@@ -339,8 +394,41 @@
         let allGames = [];
         let isLogin = true;
         let currentActiveGameContent = null;
+        const SITE_URL = "https://nkahlkyhm-boop.github.io/HTCLI-GAMES/";
 
-        // Controle de Páginas
+     
+        window.openShareMenu = () => {
+            document.getElementById('shareFrame').style.display = 'block';
+        };
+
+        window.shareTo = (platform) => {
+            const text = encodeURIComponent("Confira esses jogos incríveis no HTCLI GAMES! 🎮");
+            const url = encodeURIComponent(SITE_URL);
+            
+            let shareUrl = "";
+            if (platform === 'whatsapp') {
+                shareUrl = `https://api.whatsapp.com/send?text=${text}%20${url}`;
+            } else if (platform === 'instagram') {
+              
+                alert("O Instagram não permite compartilhamento direto de links. Copie o link e cole na sua Bio ou Stories!");
+                copyLink();
+                return;
+            }
+            
+            window.open(shareUrl, '_blank');
+        };
+
+        window.copyLink = () => {
+            const tempInput = document.createElement("input");
+            document.body.appendChild(tempInput);
+            tempInput.value = SITE_URL;
+            tempInput.select();
+            document.execCommand("copy");
+            document.body.removeChild(tempInput);
+            alert("Link copiado para a área de transferência!");
+        };
+
+      
         window.showPage = (pageId) => {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById('page-' + pageId).classList.add('active');
@@ -349,37 +437,29 @@
 
         window.handleDonate = () => {
             const val = document.getElementById('donateValue').value;
-            const key = "5516992971868"; // Sua chave PIX (telefone)
+            const key = "5516992971868";
 
             if(!val || val <= 0) {
                 alert("Por favor, insira um valor válido para a doação.");
                 return;
             }
 
-       
-            
-            const confirmMsg = `Você escolheu doar R$ ${val}.\n\nPara facilitar, copie o número ${key} e cole no seu aplicativo de banco na opção PIX.\n\nDeseja abrir seu aplicativo de banco agora?`;
+            const confirmMsg = `Você escolheu doar R$ ${val}.\n\nPara facilitar, o número ${key} será copiado.\n\nDeseja prosseguir?`;
             
             if(confirm(confirmMsg)) {
-                // Copia o número para o clipboard automaticamente para facilitar
                 const dummy = document.createElement("input");
                 document.body.appendChild(dummy);
                 dummy.value = key;
                 dummy.select();
                 document.execCommand("copy");
                 document.body.removeChild(dummy);
-
-             
-                window.location.href = "https://pix.bcb.gov.br/qr/"; 
                 
-    
-                setTimeout(() => {
-                    alert("Se o banco não abriu automaticamente, o número " + key + " já foi copiado! Abra o app do seu banco e cole na área PIX.");
-                }, 1000);
+                alert("Número PIX copiado! Abra o app do seu banco e realize o pagamento.");
+                window.location.href = "https://pix.bcb.gov.br/qr/"; 
             }
         };
 
-        // Funções Originais
+      
         window.closeModals = () => {
             document.querySelectorAll('.overlay').forEach(f => f.style.display='none');
             const viewport = document.getElementById('gameViewport');
